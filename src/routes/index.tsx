@@ -10,6 +10,9 @@ import { ActivityIndicator, View } from 'react-native';
 import { RootStackParamList } from '../types/navigation';
 import { AddPet } from '../screens/AddPet';
 import { ProfileScreen } from '../screens/ProfileScreen';
+import { AddVaccination } from '../screens/AddVaccinationScreen';
+import { VaccinationDetailsScreen } from '../screens/VaccinationDetailsScreen';
+import { AddVaccineType } from '../screens/AddVaccineTypeScreen';
 
 // Tipando o Stack com os parâmetros definidos
 const Stack = createStackNavigator<RootStackParamList>();
@@ -45,6 +48,9 @@ export const Routes = () => {
 						<Stack.Screen name='PetDetails' component={PetDetailsScreen} options={{ title: 'Pet Details' }} />
 						<Stack.Screen name='AddPet' component={AddPet} options={{ title: 'Add New Pet' }} />
 						<Stack.Screen name='Profile' component={ProfileScreen} options={{ title: 'Profile' }} />
+						<Stack.Screen name='AddVaccination' component={AddVaccination} options={{ title: 'Profile' }} />
+						<Stack.Screen name='VaccinationDetails' component={VaccinationDetailsScreen} options={{ title: 'Detalhes da Vacinação' }} />
+						<Stack.Screen name='AddVaccineType' component={AddVaccineType} options={{ title: 'Add Vaccine Type' }} />
 					</>
 				) : (
 					// Rotas não autenticadas

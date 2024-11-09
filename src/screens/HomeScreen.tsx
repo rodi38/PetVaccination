@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
-import { Card, Title, Paragraph, FAB, ActivityIndicator } from 'react-native-paper';
+import { Card, Title, Paragraph, FAB, Portal, ActivityIndicator } from 'react-native-paper';
 import { Pet } from '../types';
 import { HomeScreenProps } from '../types/navigation';
 import { useAuth } from '../contexts/AuthContext';
@@ -16,6 +16,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 	const { user } = useAuth();
 	const [pets, setPets] = useState<PetWithVaccineCount[]>([]);
 	const [refreshing, setRefreshing] = useState(false);
+	const [fabOpen, setFabOpen] = useState(false);
 	const { execute, isLoading } = useRequest();
 
 	React.useLayoutEffect(() => {
@@ -36,24 +37,26 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 			try {
 				// Buscar pets
 				const petsResponse = await PetService.getAllPetsByOwnerId(user?._id);
+				console.log('user id', user?._id);
+
 				console.log(petsResponse);
 
-				const petcountone = await VaccineService.getPetVaccineCount('6711ce9940179d36ebd02194');
-				console.log('teste: ', petcountone);
+				if (petsResponse) {
+					const petsWithVaccines = await Promise.all(
+						petsResponse.map(async (pet) => {
+							const vaccineCount = await VaccineService.getPetVaccineCount(pet._id);
+							return {
+								...pet,
+								vaccineCount,
+							};
+						}),
+					);
 
-				// Buscar contagem de vacinas para cada pet
-				const petsWithVaccines = await Promise.all(
-					petsResponse.map(async (pet) => {
-						const vaccineCount = await VaccineService.getPetVaccineCount(pet._id);
-						return {
-							...pet,
-							vaccineCount,
-						};
-					}),
-				);
-
-				// setPets(petsResponse);
-				setPets(petsWithVaccines);
+					setPets(petsWithVaccines);
+				} else {
+					console.log('No pets found');
+					setPets([]); // or setPets(null), depending on your desired behavior
+				}
 			} catch (error) {
 				console.error('Error fetching pets:', error);
 			}
@@ -85,7 +88,37 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 	return (
 		<View style={styles.container}>
 			<FlatList data={pets} renderItem={renderPetCard} keyExtractor={(pet) => pet._id} contentContainerStyle={styles.listContainer} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} />
-			<FAB style={styles.fab} icon='plus' onPress={() => navigation.navigate('AddPet')} />
+			<Portal>
+				<FAB.Group
+					open={fabOpen}
+					visible
+					icon={fabOpen ? 'close' : 'plus'}
+					actions={[
+						{
+							icon: 'needle',
+							label: 'Add Vaccine Type',
+							onPress: () => navigation.navigate('AddVaccineType'),
+							labelStyle: styles.fabActionLabel,
+							style: styles.fabAction,
+						},
+						{
+							icon: 'paw',
+							label: 'Add Pet',
+							onPress: () => navigation.navigate('AddPet'),
+							labelStyle: styles.fabActionLabel,
+							style: styles.fabAction,
+						},
+					]}
+					onStateChange={({ open }) => setFabOpen(open)}
+					onPress={() => {
+						if (fabOpen) {
+							// Já está aberto, não precisa fazer nada
+						}
+					}}
+					fabStyle={styles.fab}
+					style={styles.fabGroup}
+				/>
+			</Portal>
 		</View>
 	);
 };
@@ -116,13 +149,6 @@ const styles = StyleSheet.create({
 		marginTop: 8,
 		fontWeight: 'bold',
 	},
-	fab: {
-		position: 'absolute',
-		margin: 16,
-		right: 0,
-		bottom: 0,
-		backgroundColor: '#2e7d32',
-	},
 	avatarButton: {
 		width: 35,
 		height: 35,
@@ -135,5 +161,21 @@ const styles = StyleSheet.create({
 	avatarText: {
 		color: 'white',
 		fontSize: 16,
+	},
+	fabGroup: {
+		paddingHorizontal: 0,
+		position: 'absolute',
+		left: 0,
+		bottom: 0,
+	},
+	fab: {
+		backgroundColor: '#2e7d32',
+		borderRadius: 50,
+	},
+	fabAction: {
+		backgroundColor: '#81c784',
+	},
+	fabActionLabel: {
+		backgroundColor: 'white',
 	},
 });

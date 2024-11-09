@@ -8,7 +8,12 @@ export type RootStackParamList = {
 	PetDetails: { petId: string };
 	AddPet: undefined;
 	AddVaccination: { petId: string };
+	AddVaccineType: undefined;
 	Profile: undefined; // Add this line
+	VaccinationDetails: {
+		petId: string;
+		vaccinationId: string; // Adicionando o ID da vacinação
+	};
 };
 
 export type NavigationProp = NativeStackScreenProps<RootStackParamList>;
@@ -20,4 +25,6 @@ export type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'>
 export type PetDetailsScreenProps = NativeStackScreenProps<RootStackParamList, 'PetDetails'>;
 export type AddPetScreenProps = NativeStackScreenProps<RootStackParamList, 'AddPet'>;
 export type AddVaccinationScreenProps = NativeStackScreenProps<RootStackParamList, 'AddVaccination'>;
-export type ProfileScreenProps = NativeStackScreenProps<RootStackParamList, 'Profile'>; // Add this line
+export type ProfileScreenProps = NativeStackScreenProps<RootStackParamList, 'Profile'>;
+export type VaccinationDetailsScreenProps = NativeStackScreenProps<RootStackParamList, 'VaccinationDetails'>;
+export type AddVaccineTypeScreenProps = NativeStackScreenProps<RootStackParamList, 'AddVaccineType'>;

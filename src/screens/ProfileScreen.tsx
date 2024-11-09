@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Card, Title, Paragraph, Appbar } from 'react-native-paper';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,18 +13,13 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 		});
 	}, [navigation, signOut]);
 
-	useEffect(() => {
-		console.log('teste');
-		console.log('abcd123');
-	}, [user]);
-
 	return (
 		<View style={styles.container}>
 			<Card style={styles.card}>
 				<Card.Content>
 					<View style={styles.avatarContainer}>
 						<View style={styles.avatar}>
-							<Title style={styles.avatarText}>{user?.username.charAt(0).toUpperCase()}</Title>
+							<Title style={styles.avatarText}>{user?.username ? user.username.charAt(0).toUpperCase() : ''}</Title>
 						</View>
 					</View>
 					<Title style={styles.username}>{user?.username}</Title>

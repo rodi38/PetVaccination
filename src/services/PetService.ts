@@ -7,13 +7,13 @@ export class PetService {
 		return response.data;
 	}
 
-	static async getAllPetsByOwnerId(ownerId?: string): Promise<Pet[]> {
-		const response = await api.get('/pets', {
-			params: {
-				ownerId,
-			},
-		});
-		return response.data;
+	static async getAllPetsByOwnerId(ownerId?: string): Promise<Pet[] | undefined> {
+		try {
+			const response = await api.get(`pets/owner/${ownerId}`);
+			return response.data;
+		} catch (error) {
+			console.error('Error fetching pets:', error);
+		}
 	}
 
 	static async getPetById(id: string): Promise<Pet> {
