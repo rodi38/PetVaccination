@@ -8,39 +8,46 @@ import { LoadingOverlay } from '../components/LoadingOverlay';
 
 export const AddVaccineType: React.FC<AddVaccineTypeScreenProps> = ({ navigation }) => {
 	const [name, setName] = useState('');
-	const { execute, isLoading, error } = useRequest();
+	const { execute, isLoading, errors, generalError } = useRequest();
 
 	const handleSubmit = async () => {
 		if (!name.trim()) {
 			return;
 		}
 
-		await execute(async () => {
-			try {
-				await VaccineService.createVaccine({ name });
-				navigation.goBack();
-			} catch (error) {
-				console.error('Error creating vaccine:', error);
-			}
+		const result = await execute(() => VaccineService.createVaccine({ name: name.trim() }), {
+			showFullScreenLoading: true,
+			loadingText: 'Creating vaccine...',
 		});
+
+		if (result) {
+			navigation.goBack();
+		}
 	};
 
 	return (
 		<View style={styles.container}>
 			<LoadingOverlay visible={isLoading} text='Creating vaccine...' />
 
-			<TextInput label='Vaccine Name' value={name} onChangeText={setName} mode='outlined' style={styles.input} />
-
-			{error && (
+			<TextInput label='Vaccine Name' value={name} onChangeText={setName} mode='outlined' style={styles.input} error={!!errors.name} />
+			{errors.name && (
 				<HelperText type='error' visible={true}>
-					{error}
+					{errors.name}
 				</HelperText>
 			)}
+
+			{generalError && (
+				<HelperText type='error' visible={true} style={styles.generalError}>
+					{generalError}
+				</HelperText>
+			)}
+
 			<View style={styles.buttonRow}>
 				<Button mode='outlined' onPress={() => navigation.goBack()} disabled={isLoading} style={styles.cancelButton}>
 					Cancel
 				</Button>
-				<Button mode='contained' onPress={handleSubmit} style={styles.button} disabled={isLoading || !name.trim()}>
+
+				<Button mode='contained' onPress={handleSubmit} style={styles.button} textColor='white' disabled={isLoading || !name.trim()}>
 					Create
 				</Button>
 			</View>
@@ -55,23 +62,26 @@ const styles = StyleSheet.create({
 		backgroundColor: '#f5f5f5',
 	},
 	input: {
-		marginBottom: 16,
+		marginBottom: 4,
 		backgroundColor: 'white',
 	},
-	button: {
-		marginTop: 10,
-		backgroundColor: '#2e7d32',
-		flex: 1,
-		color: 'white',
+	generalError: {
+		textAlign: 'center',
+		marginBottom: 8,
 	},
 	buttonRow: {
 		flexDirection: 'row',
-		justifyContent: 'space-between', // Distribui os botões igualmente
+		justifyContent: 'space-between',
 		gap: 8,
+		marginTop: 16,
+	},
+	button: {
+		flex: 1,
+		backgroundColor: '#2e7d32',
+		color: 'white',
 	},
 	cancelButton: {
-		marginTop: 10,
+		flex: 1,
 		borderColor: '#2e7d32',
-		flex: 1, // Faz com que cada botão ocupe o mesmo espaço
 	},
 });

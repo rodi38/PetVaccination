@@ -6,6 +6,11 @@ import { ProfileScreenProps } from '../types/navigation';
 
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 	const { user, signOut } = useAuth();
+	// const { user, signOut, updateProfile } = useAuth();
+
+	// const [username, setUsername] = useState(user?.username || '');
+	// const [profileImage, setProfileImage] = useState(user?.profileImage);
+	// const { execute, isLoading } = useRequest();
 
 	React.useLayoutEffect(() => {
 		navigation.setOptions({
