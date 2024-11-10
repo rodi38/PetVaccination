@@ -21,18 +21,22 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 	const [showDatePicker, setShowDatePicker] = useState(false);
 	const [showNextDosePicker, setShowNextDosePicker] = useState(false);
 
-	const { execute, isLoading, error } = useRequest();
+	const { execute, isLoading, errors, generalError, setGeneralError } = useRequest();
 
 	useEffect(() => {
 		loadVaccines();
 	}, []);
 
 	const loadVaccines = async () => {
-		try {
+		const result = await execute(async () => {
 			const availableVaccines = await VaccineService.getAllVaccines();
 			setVaccines(availableVaccines);
-		} catch (error) {
-			console.error('Error loading vaccines:', error);
+			return availableVaccines;
+		});
+
+		if (!result || result.length === 0) {
+			// Pode adicionar uma mensagem caso não encontre vacinas disponíveis
+			setGeneralError('No vaccines available');
 		}
 	};
 
@@ -41,28 +45,23 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 			return;
 		}
 
-		await execute(
-			async () => {
-				const vaccineData = {
-					petId,
-					vaccineId: selectedVaccine._id,
-					vaccinationDate,
-					notes,
-					veterinarian,
-					clinic,
-					nextDoseDate,
-				};
+		const vaccineData = {
+			petId,
+			vaccineId: selectedVaccine._id,
+			vaccinationDate,
+			notes: notes.trim() || undefined, // Se vazio, envia undefined
+			veterinarian: veterinarian.trim() || undefined, // Se vazio, envia undefined
+			clinic: clinic.trim() || undefined, // Se vazio, envia undefined
+		};
 
-				console.log(vaccineData);
+		const result = await execute(() => VaccineService.createPetVaccine(vaccineData), {
+			showFullScreenLoading: true,
+			loadingText: 'Saving vaccination...',
+		});
 
-				await VaccineService.createPetVaccine(vaccineData);
-				navigation.goBack();
-			},
-			{
-				showFullScreenLoading: true,
-				loadingText: 'Saving vaccination...',
-			},
-		);
+		if (result) {
+			navigation.goBack();
+		}
 	};
 
 	const formatDate = (date: Date) => {
@@ -79,21 +78,57 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 
 			<Card style={styles.card}>
 				<Card.Content>
-					<List.Item title='Select Vaccine' description={selectedVaccine ? selectedVaccine.name : 'Choose a vaccine'} left={(props) => <List.Icon {...props} icon='needle' />} onPress={() => setShowVaccineDialog(true)} style={styles.listItem} />
-
-					<TextInput label='Veterinarian' value={veterinarian} onChangeText={setVeterinarian} mode='outlined' style={styles.input} />
-
-					<TextInput label='Clinic' value={clinic} onChangeText={setClinic} mode='outlined' style={styles.input} />
-
-					<List.Item title='Vaccination Date' description={formatDate(vaccinationDate)} left={(props) => <List.Icon {...props} icon='calendar' />} onPress={() => setShowDatePicker(true)} style={styles.listItem} />
-
-					<List.Item title='Next Dose Date (Optional)' description={nextDoseDate ? formatDate(nextDoseDate) : 'Set next dose date'} left={(props) => <List.Icon {...props} icon='calendar-clock' />} onPress={() => setShowNextDosePicker(true)} style={styles.listItem} />
-
-					<TextInput label='Notes' value={notes} onChangeText={setNotes} mode='outlined' multiline numberOfLines={4} style={styles.input} />
-
-					{error && (
+					<List.Item title='Select Vaccine' description={selectedVaccine ? selectedVaccine.name : 'Choose a vaccine'} left={(props) => <List.Icon {...props} icon='needle' />} onPress={() => setShowVaccineDialog(true)} style={[styles.listItem, errors.vaccineId && styles.errorItem]} />
+					{errors.vaccineId && (
 						<HelperText type='error' visible={true}>
-							{error}
+							{errors.vaccineId}
+						</HelperText>
+					)}
+
+					<TextInput label='Veterinarian' value={veterinarian} onChangeText={setVeterinarian} mode='outlined' style={styles.input} error={!!errors.veterinarian} />
+					{errors.veterinarian && (
+						<HelperText type='error' visible={true}>
+							{errors.veterinarian}
+						</HelperText>
+					)}
+
+					<TextInput label='Clinic' value={clinic} onChangeText={setClinic} mode='outlined' style={styles.input} error={!!errors.clinic} />
+					{errors.clinic && (
+						<HelperText type='error' visible={true}>
+							{errors.clinic}
+						</HelperText>
+					)}
+
+					<List.Item title='Vaccination Date' description={formatDate(vaccinationDate)} left={(props) => <List.Icon {...props} icon='calendar' />} onPress={() => setShowDatePicker(true)} style={[styles.listItem, errors.vaccinationDate && styles.errorItem]} />
+					{errors.vaccinationDate && (
+						<HelperText type='error' visible={true}>
+							{errors.vaccinationDate}
+						</HelperText>
+					)}
+
+					<List.Item
+						title='Next Dose Date (Optional)'
+						description={nextDoseDate ? formatDate(nextDoseDate) : 'Set next dose date'}
+						left={(props) => <List.Icon {...props} icon='calendar-clock' />}
+						onPress={() => setShowNextDosePicker(true)}
+						style={[styles.listItem, errors.nextDoseDate && styles.errorItem]}
+					/>
+					{errors.nextDoseDate && (
+						<HelperText type='error' visible={true}>
+							{errors.nextDoseDate}
+						</HelperText>
+					)}
+
+					<TextInput label='Notes' value={notes} onChangeText={setNotes} mode='outlined' multiline numberOfLines={4} style={styles.input} error={!!errors.notes} />
+					{errors.notes && (
+						<HelperText type='error' visible={true}>
+							{errors.notes}
+						</HelperText>
+					)}
+
+					{generalError && (
+						<HelperText type='error' visible={true} style={styles.generalError}>
+							{generalError}
 						</HelperText>
 					)}
 				</Card.Content>
@@ -167,14 +202,23 @@ const styles = StyleSheet.create({
 		backgroundColor: 'white',
 	},
 	input: {
-		marginBottom: 16,
+		marginBottom: 4,
 	},
 	listItem: {
 		paddingVertical: 8,
-		marginBottom: 16,
+		marginBottom: 4,
+	},
+	errorItem: {
+		borderColor: '#ff0000',
+		borderWidth: 1,
+		borderRadius: 4,
 	},
 	submitButton: {
 		marginBottom: 32,
 		backgroundColor: '#2e7d32',
+	},
+	generalError: {
+		textAlign: 'center',
+		marginTop: 8,
 	},
 });

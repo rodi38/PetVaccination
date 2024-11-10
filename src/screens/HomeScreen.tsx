@@ -7,6 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useRequest } from '../hooks/useRequest';
 import { PetService } from '../services/PetService';
 import { VaccineService } from '../services/VaccineService';
+import { useFocusEffect } from '@react-navigation/native';
 
 interface PetWithVaccineCount extends Pet {
 	vaccineCount: number;
@@ -91,6 +92,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 		setRefreshing(false);
 	};
 
+	useFocusEffect(
+		React.useCallback(() => {
+			fetchPets();
+		}, []),
+	);
+
 	useEffect(() => {
 		fetchPets();
 	}, []);
@@ -110,13 +117,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 	const renderPagination = () => (
 		<View style={styles.paginationContainer}>
 			<Button mode='text' onPress={() => setCurrentPage((prev) => Math.max(1, prev - 1))} disabled={currentPage === 1} style={styles.paginationButton}>
-				Previous
+				Anterior
 			</Button>
 			<Text style={styles.paginationText}>
-				Page {currentPage} of {totalPages}
+				Página {currentPage} de {totalPages}
 			</Text>
 			<Button mode='text' onPress={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages} style={styles.paginationButton}>
-				Next
+				Próximo
 			</Button>
 		</View>
 	);

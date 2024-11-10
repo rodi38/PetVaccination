@@ -36,10 +36,14 @@ export const AddVaccineType: React.FC<AddVaccineTypeScreenProps> = ({ navigation
 					{error}
 				</HelperText>
 			)}
-
-			<Button mode='contained' onPress={handleSubmit} style={styles.button} disabled={isLoading || !name.trim()}>
-				Create Vaccine
-			</Button>
+			<View style={styles.buttonRow}>
+				<Button mode='outlined' onPress={() => navigation.goBack()} disabled={isLoading} style={styles.cancelButton}>
+					Cancel
+				</Button>
+				<Button mode='contained' onPress={handleSubmit} style={styles.button} disabled={isLoading || !name.trim()}>
+					Create
+				</Button>
+			</View>
 		</View>
 	);
 };
@@ -55,7 +59,19 @@ const styles = StyleSheet.create({
 		backgroundColor: 'white',
 	},
 	button: {
-		marginTop: 8,
+		marginTop: 10,
 		backgroundColor: '#2e7d32',
+		flex: 1,
+		color: 'white',
+	},
+	buttonRow: {
+		flexDirection: 'row',
+		justifyContent: 'space-between', // Distribui os botões igualmente
+		gap: 8,
+	},
+	cancelButton: {
+		marginTop: 10,
+		borderColor: '#2e7d32',
+		flex: 1, // Faz com que cada botão ocupe o mesmo espaço
 	},
 });
