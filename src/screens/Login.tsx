@@ -10,17 +10,20 @@ export const Login = ({ navigation }: LoginScreenProps) => {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const { signIn } = useAuth();
-	const { execute, isLoading, error } = useRequest();
+	const { execute, isLoading, errors, generalError } = useRequest();
 
 	const handleLogin = async () => {
 		if (!email || !password) {
 			return;
 		}
 
-		await execute(() => signIn(email, password), {
+		const result = await execute(() => signIn(email, password), {
 			showFullScreenLoading: true,
 			loadingText: 'Signing in...',
 		});
+
+		// Se o login for bem-sucedido, o AuthContext já vai redirecionar automaticamente
+		// devido à mudança no estado do usuário
 	};
 
 	return (
@@ -28,11 +31,24 @@ export const Login = ({ navigation }: LoginScreenProps) => {
 			<LoadingOverlay visible={isLoading} text='Signing in...' />
 
 			<Text style={styles.title}>Pet Vaccination</Text>
-			<TextInput label='Email' value={email} onChangeText={setEmail} mode='outlined' style={styles.input} />
-			<TextInput label='Password' value={password} onChangeText={setPassword} secureTextEntry mode='outlined' style={styles.input} />
-			{error && (
+
+			<TextInput label='Email' value={email} onChangeText={setEmail} mode='outlined' style={styles.input} error={!!errors.email} keyboardType='email-address' autoCapitalize='none' />
+			{errors.email && (
 				<HelperText type='error' visible={true}>
-					{error}
+					{errors.email}
+				</HelperText>
+			)}
+
+			<TextInput label='Password' value={password} onChangeText={setPassword} secureTextEntry mode='outlined' style={styles.input} error={!!errors.password} autoCapitalize='none' />
+			{errors.password && (
+				<HelperText type='error' visible={true}>
+					{errors.password}
+				</HelperText>
+			)}
+
+			{generalError && (
+				<HelperText type='error' visible={true} style={styles.generalError}>
+					{generalError}
 				</HelperText>
 			)}
 
@@ -61,10 +77,15 @@ const styles = StyleSheet.create({
 		color: '#2e7d32',
 	},
 	input: {
-		marginBottom: 10,
+		marginBottom: 4,
+	},
+	generalError: {
+		marginBottom: 8,
+		textAlign: 'center',
 	},
 	button: {
-		marginTop: 10,
+		marginTop: 16,
+		marginBottom: 8,
 		backgroundColor: '#2e7d32',
 	},
 });

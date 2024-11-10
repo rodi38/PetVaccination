@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
-import { Card, Title, Paragraph, FAB, Portal, ActivityIndicator } from 'react-native-paper';
+import { Text, Card, Title, Paragraph, FAB, Portal, ActivityIndicator, Searchbar, Button } from 'react-native-paper';
 import { Pet } from '../types';
 import { HomeScreenProps } from '../types/navigation';
 import { useAuth } from '../contexts/AuthContext';
@@ -12,11 +12,16 @@ interface PetWithVaccineCount extends Pet {
 	vaccineCount: number;
 }
 
+const ITEMS_PER_PAGE = 6;
+
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 	const { user } = useAuth();
 	const [pets, setPets] = useState<PetWithVaccineCount[]>([]);
+	const [filteredPets, setFilteredPets] = useState<PetWithVaccineCount[]>([]);
 	const [refreshing, setRefreshing] = useState(false);
 	const [fabOpen, setFabOpen] = useState(false);
+	const [searchQuery, setSearchQuery] = useState('');
+	const [currentPage, setCurrentPage] = useState(1);
 	const { execute, isLoading } = useRequest();
 
 	React.useLayoutEffect(() => {
@@ -31,6 +36,21 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 			),
 		});
 	}, [navigation, isLoading, user]);
+
+	const totalPages = Math.ceil(filteredPets.length / ITEMS_PER_PAGE);
+
+	// Handle search
+	const onChangeSearch = (query: string) => {
+		setSearchQuery(query);
+		const filtered = pets.filter((pet) => pet.name.toLowerCase().includes(query.toLowerCase()));
+		setFilteredPets(filtered);
+		setCurrentPage(1); // Reset to first page when searching
+	};
+
+	const getCurrentPagePets = () => {
+		const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+		return filteredPets.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+	};
 
 	const fetchPets = async () => {
 		await execute(async () => {
@@ -53,9 +73,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 					);
 
 					setPets(petsWithVaccines);
+					setFilteredPets(petsWithVaccines);
 				} else {
 					console.log('No pets found');
-					setPets([]); // or setPets(null), depending on your desired behavior
+					setPets([]);
+					setFilteredPets([]); // or setPets(null), depending on your desired behavior
 				}
 			} catch (error) {
 				console.error('Error fetching pets:', error);
@@ -85,9 +107,24 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 		</Card>
 	);
 
+	const renderPagination = () => (
+		<View style={styles.paginationContainer}>
+			<Button mode='text' onPress={() => setCurrentPage((prev) => Math.max(1, prev - 1))} disabled={currentPage === 1} style={styles.paginationButton}>
+				Previous
+			</Button>
+			<Text style={styles.paginationText}>
+				Page {currentPage} of {totalPages}
+			</Text>
+			<Button mode='text' onPress={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages} style={styles.paginationButton}>
+				Next
+			</Button>
+		</View>
+	);
+
 	return (
 		<View style={styles.container}>
-			<FlatList data={pets} renderItem={renderPetCard} keyExtractor={(pet) => pet._id} contentContainerStyle={styles.listContainer} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} />
+			<Searchbar placeholder='Pesquisar por pet' onChangeText={onChangeSearch} value={searchQuery} style={styles.searchBar} />
+			<FlatList data={getCurrentPagePets()} renderItem={renderPetCard} keyExtractor={(pet) => pet._id} contentContainerStyle={styles.listContainer} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} ListFooterComponent={renderPagination} />
 			<Portal>
 				<FAB.Group
 					open={fabOpen}
@@ -112,7 +149,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 					onStateChange={({ open }) => setFabOpen(open)}
 					onPress={() => {
 						if (fabOpen) {
-							// Já está aberto, não precisa fazer nada
+							// Already open, no action needed
 						}
 					}}
 					fabStyle={styles.fab}
@@ -128,8 +165,13 @@ const styles = StyleSheet.create({
 		flex: 1,
 		backgroundColor: '#f5f5f5',
 	},
+	searchBar: {
+		margin: 16,
+		elevation: 4,
+	},
 	listContainer: {
 		padding: 16,
+		paddingBottom: 80, // Extra padding for FAB
 	},
 	card: {
 		marginBottom: 16,
@@ -161,6 +203,19 @@ const styles = StyleSheet.create({
 	avatarText: {
 		color: 'white',
 		fontSize: 16,
+	},
+	paginationContainer: {
+		flexDirection: 'row',
+		justifyContent: 'center',
+		alignItems: 'center',
+		paddingVertical: 16,
+	},
+	paginationButton: {
+		marginHorizontal: 8,
+	},
+	paginationText: {
+		color: '#666',
+		fontSize: 14,
 	},
 	fabGroup: {
 		paddingHorizontal: 0,

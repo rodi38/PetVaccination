@@ -25,7 +25,7 @@ export interface Vaccine {
 }
 
 export interface VaccinationRecord {
-	_id: string; // Adicione esta linha
+	_id: string; 
 	vaccine: Vaccine;
 	vaccinationDate: string;
 	notes?: string;
