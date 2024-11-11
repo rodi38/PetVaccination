@@ -5,8 +5,10 @@ const local = 'http://192.168.18.6:4245';
 const prod = 'https://petvacapi.onrender.com';
 
 const api = axios.create({
-	baseURL: prod, // Altere para seu IP local quando necessário
+	baseURL: local, // Altere para seu IP local quando necessário
 });
+
+console.log(api.defaults.baseURL);
 
 let authTokens = {
 	token: null as string | null,

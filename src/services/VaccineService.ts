@@ -44,10 +44,10 @@ export class VaccineService {
 		return response.data;
 	}
 
-    static async createVaccine(data: Vaccine): Promise<Vaccine> {
-        const response = await api.post('/vaccines', data);
-        return response.data;
-    }
+	static async createVaccine(data: Vaccine): Promise<Vaccine> {
+		const response = await api.post('/vaccines', data);
+		return response.data;
+	}
 
 	static async getPetVaccineDetails(vaccinationId?: string, petId?: string) {
 		try {
@@ -60,7 +60,7 @@ export class VaccineService {
 		}
 	}
 
-	static async deletePetVaccine(id: string): Promise<void> {
-		await api.delete(`/vaccines/${id}`);
+	static async deletePetVaccine(vaccineId: string, petId: string): Promise<void> {
+		await api.delete(`/vaccines/pet/${petId}/vaccine/${vaccineId}`);
 	}
 }

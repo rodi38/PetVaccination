@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useRequest } from '../hooks/useRequest';
 import { PetService } from '../services/PetService';
 import { VaccineService } from '../services/VaccineService';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 
 interface PetWithVaccineCount extends Pet {
 	vaccineCount: number;
@@ -24,6 +24,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [currentPage, setCurrentPage] = useState(1);
 	const { execute, isLoading } = useRequest();
+
+	const isFocused = useIsFocused();
 
 	React.useLayoutEffect(() => {
 		navigation.setOptions({
@@ -135,19 +137,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 			<Portal>
 				<FAB.Group
 					open={fabOpen}
-					visible
+					visible={isFocused} // Adicione esta linha
 					icon={fabOpen ? 'close' : 'plus'}
 					actions={[
 						{
 							icon: 'needle',
-							label: 'Add Vaccine Type',
+							label: 'Adicionar novo tipo de vacina',
 							onPress: () => navigation.navigate('AddVaccineType'),
 							labelStyle: styles.fabActionLabel,
 							style: styles.fabAction,
 						},
 						{
 							icon: 'paw',
-							label: 'Add Pet',
+							label: 'Adicionar novo Pet',
 							onPress: () => navigation.navigate('AddPet'),
 							labelStyle: styles.fabActionLabel,
 							style: styles.fabAction,

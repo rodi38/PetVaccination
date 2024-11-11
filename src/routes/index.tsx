@@ -44,13 +44,13 @@ export const Routes = () => {
 				{user ? (
 					// Rotas autenticadas
 					<>
-						<Stack.Screen name='Home' component={HomeScreen} options={{ title: 'My Pets' }} />
-						<Stack.Screen name='PetDetails' component={PetDetailsScreen} options={{ title: 'Pet Details' }} />
-						<Stack.Screen name='AddPet' component={AddPet} options={{ title: 'Add New Pet' }} />
-						<Stack.Screen name='Profile' component={ProfileScreen} options={{ title: 'Profile' }} />
-						<Stack.Screen name='AddVaccination' component={AddVaccination} options={{ title: 'Profile' }} />
+						<Stack.Screen name='Home' component={HomeScreen} options={{ title: 'Meus Pets' }} />
+						<Stack.Screen name='PetDetails' component={PetDetailsScreen} options={{ title: 'Detalhes do Pet' }} />
+						<Stack.Screen name='AddPet' component={AddPet} options={{ title: 'Adicionar Pet' }} />
+						<Stack.Screen name='Profile' component={ProfileScreen} options={{ title: 'Perfil' }} />
+						<Stack.Screen name='AddVaccination' component={AddVaccination} options={{ title: 'Adicionar Vacinação' }} />
 						<Stack.Screen name='VaccinationDetails' component={VaccinationDetailsScreen} options={{ title: 'Detalhes da Vacinação' }} />
-						<Stack.Screen name='AddVaccineType' component={AddVaccineType} options={{ title: 'Add Vaccine Type' }} />
+						<Stack.Screen name='AddVaccineType' component={AddVaccineType} options={{ title: 'Adicionar novo tipo de vacina' }} />
 					</>
 				) : (
 					// Rotas não autenticadas

@@ -50,7 +50,8 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 			vaccineId: selectedVaccine._id,
 			vaccinationDate,
 			notes: notes.trim() || undefined, // Se vazio, envia undefined
-			veterinarian: veterinarian.trim() || undefined, // Se vazio, envia undefined
+			veterinarian: veterinarian.trim() || undefined, //
+			nextDoseDate: nextDoseDate || undefined, // Se vazio, envia undefined
 			clinic: clinic.trim() || undefined, // Se vazio, envia undefined
 		};
 

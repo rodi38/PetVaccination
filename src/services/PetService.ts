@@ -26,8 +26,11 @@ export class PetService {
 		return response.data;
 	}
 
+
 	static async updatePet(id: string, petData: Partial<CreatePetDTO>): Promise<Pet> {
 		const response = await api.put(`/pets/${id}`, petData);
+		console.log(response.data);
+
 		return response.data;
 	}
 

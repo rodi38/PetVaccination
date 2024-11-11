@@ -8,6 +8,13 @@ interface TokenPayload {
 	sub: string; // ou qualquer outro campo que seu token contenha
 }
 
+interface UpdateUserDTO {
+	username?: string;
+	email?: string;
+	currentPassword?: string;
+	newPassword?: string;
+}
+
 export class AuthService {
 	static isTokenExpired(token: string): boolean {
 		try {
@@ -40,6 +47,13 @@ export class AuthService {
 		} catch (error) {
 			throw error;
 		}
+	}
+
+	static async updateUser(userId: string, data: UpdateUserDTO) {
+		const response = await api.put(`/auth/users/${userId}`, data);
+		const updatedUser = response.data;
+		await AsyncStorage.setItem('@user', JSON.stringify(updatedUser));
+		return updatedUser;
 	}
 
 	static async logout() {
