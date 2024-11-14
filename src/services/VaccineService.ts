@@ -63,4 +63,8 @@ export class VaccineService {
 	static async deletePetVaccine(vaccineId: string, petId: string): Promise<void> {
 		await api.delete(`/vaccines/pet/${petId}/vaccine/${vaccineId}`);
 	}
+
+	static async deleteVaccine(vaccineId: string): Promise<void> {
+		await api.delete(`/vaccines/${vaccineId}`);
+	}
 }

@@ -31,9 +31,9 @@ export const Register = ({ navigation }: RegisterScreenProps) => {
 	return (
 		<View style={styles.container}>
 			<LoadingOverlay visible={isLoading} text='Signing in...' />
-			<Text style={styles.title}>Create Account</Text>
+			<Text style={styles.title}>Criar Conta</Text>
 
-			<TextInput label='Username' value={username} onChangeText={setUsername} mode='outlined' style={styles.input} error={!!errors.username} />
+			<TextInput label='Apelido' value={username} onChangeText={setUsername} mode='outlined' style={styles.input} error={!!errors.username} />
 			{errors.username && (
 				<HelperText type='error' visible={true}>
 					{errors.username}
@@ -47,7 +47,7 @@ export const Register = ({ navigation }: RegisterScreenProps) => {
 				</HelperText>
 			)}
 
-			<TextInput label='Password' value={password} onChangeText={setPassword} secureTextEntry mode='outlined' style={styles.input} error={!!errors.password} />
+			<TextInput label='Senha' value={password} onChangeText={setPassword} secureTextEntry mode='outlined' style={styles.input} error={!!errors.password} />
 			{errors.password && (
 				<HelperText type='error' visible={true}>
 					{errors.password}
@@ -61,11 +61,11 @@ export const Register = ({ navigation }: RegisterScreenProps) => {
 			)}
 
 			<Button mode='contained' onPress={handleRegister} loading={isLoading} disabled={isLoading} style={styles.button}>
-				Register
+				Registrar
 			</Button>
 
 			<Button mode='text' disabled={isLoading} onPress={() => navigation.goBack()}>
-				Already have an account? Login
+				Já tem uma conta? Faça o login
 			</Button>
 		</View>
 	);

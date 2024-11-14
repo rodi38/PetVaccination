@@ -72,9 +72,9 @@ export const AddPet: React.FC<AddPetScreenProps> = ({ navigation }) => {
 	};
 
 	const genderData = [
-		{ key: 'male', value: 'Male' },
-		{ key: 'female', value: 'Female' },
-		{ key: 'other', value: 'Other' },
+		{ key: 'male', value: 'Macho' },
+		{ key: 'female', value: 'Fêmea' },
+		{ key: 'other', value: 'Outro' },
 	];
 	const handleSubmit = async () => {
 		if (!name || !petType || !breed || !gender || !age) {
@@ -109,16 +109,16 @@ export const AddPet: React.FC<AddPetScreenProps> = ({ navigation }) => {
 		<ScrollView style={styles.container}>
 			<LoadingOverlay visible={isLoading} text='Creating pet...' />
 
-			<Text style={styles.title}>Add New Pet</Text>
+			<Text style={styles.title}>Adicionar Novo Pet</Text>
 
-			<TextInput label='Pet Name' value={name} onChangeText={setName} mode='outlined' style={styles.input} error={!!errors.name} />
+			<TextInput label='Nome do Pet' value={name} onChangeText={setName} mode='outlined' style={styles.input} error={!!errors.name} />
 			{errors.name && (
 				<HelperText type='error' visible={true}>
 					{errors.name}
 				</HelperText>
 			)}
 
-			<Text style={styles.label}>Pet Type</Text>
+			<Text style={styles.label}>Tipo de Pet</Text>
 			<SelectList
 				setSelected={(val: string) => {
 					setPetType(val as PetType);
@@ -126,7 +126,7 @@ export const AddPet: React.FC<AddPetScreenProps> = ({ navigation }) => {
 				}}
 				data={petTypeData}
 				save='key'
-				placeholder='Select pet type'
+				placeholder='Selecionar Tipo de Pet'
 				boxStyles={[styles.selectBox, errors.petType && { borderColor: '#ff0000' }]}
 				dropdownStyles={styles.dropdown}
 				search={false}
@@ -137,11 +137,11 @@ export const AddPet: React.FC<AddPetScreenProps> = ({ navigation }) => {
 				</HelperText>
 			)}
 
-			<Text style={styles.label}>Breed</Text>
+			<Text style={styles.label}>Raça</Text>
 			{petType === 'Other' ? (
 				<TextInput label='Breed' value={breed} onChangeText={setBreed} mode='outlined' style={styles.input} error={!!errors.breed} />
 			) : (
-				<SelectList setSelected={setBreed} data={getBreedData()} save='key' placeholder='Select breed' boxStyles={[styles.selectBox, errors.breed && { borderColor: '#ff0000' }]} dropdownStyles={styles.dropdown} search={true} searchPlaceholder='Search breed' disabled={!petType} />
+				<SelectList setSelected={setBreed} data={getBreedData()} save='key' placeholder='Selecionar Raça' boxStyles={[styles.selectBox, errors.breed && { borderColor: '#ff0000' }]} dropdownStyles={styles.dropdown} search={true} searchPlaceholder='Search breed' disabled={!petType} />
 			)}
 			{errors.breed && (
 				<HelperText type='error' visible={true}>
@@ -149,15 +149,15 @@ export const AddPet: React.FC<AddPetScreenProps> = ({ navigation }) => {
 				</HelperText>
 			)}
 
-			<Text style={styles.label}>Gender</Text>
-			<SelectList setSelected={setGender} data={genderData} save='key' placeholder='Select gender' boxStyles={[styles.selectBox, errors.gender && { borderColor: '#ff0000' }]} dropdownStyles={styles.dropdown} search={false} />
+			<Text style={styles.label}>Gênero</Text>
+			<SelectList setSelected={setGender} data={genderData} save='key' placeholder='Selecionar Gênero' boxStyles={[styles.selectBox, errors.gender && { borderColor: '#ff0000' }]} dropdownStyles={styles.dropdown} search={false} />
 			{errors.gender && (
 				<HelperText type='error' visible={true}>
 					{errors.gender}
 				</HelperText>
 			)}
 
-			<TextInput label='Age' value={age} onChangeText={setAge} keyboardType='numeric' mode='outlined' style={styles.input} error={!!errors.age} />
+			<TextInput label='Idade' value={age} onChangeText={setAge} keyboardType='numeric' mode='outlined' style={styles.input} error={!!errors.age} />
 			{errors.age && (
 				<HelperText type='error' visible={true}>
 					{errors.age}
@@ -172,10 +172,10 @@ export const AddPet: React.FC<AddPetScreenProps> = ({ navigation }) => {
 
 			<View style={styles.buttonRow}>
 				<Button mode='outlined' onPress={() => navigation.goBack()} disabled={isLoading} style={styles.cancelButton}>
-					Cancel
+					Cancelar
 				</Button>
 				<Button mode='contained' onPress={handleSubmit} loading={isLoading} disabled={isLoading} style={styles.button}>
-					Add Pet
+					Cadastrar Pet
 				</Button>
 			</View>
 		</ScrollView>

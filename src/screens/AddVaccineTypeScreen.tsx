@@ -17,7 +17,7 @@ export const AddVaccineType: React.FC<AddVaccineTypeScreenProps> = ({ navigation
 
 		const result = await execute(() => VaccineService.createVaccine({ name: name.trim() }), {
 			showFullScreenLoading: true,
-			loadingText: 'Creating vaccine...',
+			loadingText: 'Criando Vacina...',
 		});
 
 		if (result) {
@@ -29,7 +29,7 @@ export const AddVaccineType: React.FC<AddVaccineTypeScreenProps> = ({ navigation
 		<View style={styles.container}>
 			<LoadingOverlay visible={isLoading} text='Creating vaccine...' />
 
-			<TextInput label='Vaccine Name' value={name} onChangeText={setName} mode='outlined' style={styles.input} error={!!errors.name} />
+			<TextInput label='Nome da Vacina' value={name} onChangeText={setName} mode='outlined' style={styles.input} error={!!errors.name} />
 			{errors.name && (
 				<HelperText type='error' visible={true}>
 					{errors.name}
@@ -44,11 +44,11 @@ export const AddVaccineType: React.FC<AddVaccineTypeScreenProps> = ({ navigation
 
 			<View style={styles.buttonRow}>
 				<Button mode='outlined' onPress={() => navigation.goBack()} disabled={isLoading} style={styles.cancelButton}>
-					Cancel
+					Cancelar
 				</Button>
 
 				<Button mode='contained' onPress={handleSubmit} style={styles.button} textColor='white' disabled={isLoading || !name.trim()}>
-					Create
+					Cadastrar
 				</Button>
 			</View>
 		</View>

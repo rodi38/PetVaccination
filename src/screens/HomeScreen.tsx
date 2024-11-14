@@ -60,9 +60,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 			try {
 				// Buscar pets
 				const petsResponse = await PetService.getAllPetsByOwnerId(user?._id);
-				console.log('user id', user?._id);
-
-				console.log(petsResponse);
 
 				if (petsResponse) {
 					const petsWithVaccines = await Promise.all(
@@ -111,7 +108,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 				<Paragraph style={styles.petInfo}>
 					{pet.breed} • {pet.age} {pet.age === 1 ? 'year' : 'years'} old
 				</Paragraph>
-				<Paragraph style={styles.vaccineCount}>Vaccines: {pet.vaccineCount}</Paragraph>
+				<Paragraph style={styles.vaccineCount}>Vacinas: {pet.vaccineCount}</Paragraph>
 			</Card.Content>
 		</Card>
 	);

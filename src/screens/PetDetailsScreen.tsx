@@ -201,37 +201,37 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 							</React.Fragment>
 						))}
 
-						{!vaccineData?.vaccinations.length && <Paragraph style={styles.noVaccines}>No vaccinations recorded</Paragraph>}
+						{!vaccineData?.vaccinations.length && <Paragraph style={styles.noVaccines}>Nenhuma vacina para este pet</Paragraph>}
 					</Card.Content>
 				</Card>
 
 				<Button mode='contained' style={styles.addButton} onPress={() => navigation.navigate('AddVaccination', { petId })}>
-					Add Vaccination
+					Adicionar Vacina
 				</Button>
 
 				<Dialog visible={deleteVaccineModalVisible} onDismiss={() => setDeleteVaccineModalVisible(false)}>
-					<Dialog.Title>Delete Vaccination</Dialog.Title>
+					<Dialog.Title>Deletar Vacina</Dialog.Title>
 					<Dialog.Content>
-						<Paragraph>Are you sure you want to delete this vaccination?</Paragraph>
+						<Paragraph>Tem certeza que deseja excluir essa vacina?</Paragraph>
 					</Dialog.Content>
 					<Dialog.Actions>
-						<Button onPress={() => setDeleteVaccineModalVisible(false)}>Cancel</Button>
+						<Button onPress={() => setDeleteVaccineModalVisible(false)}>Cancelar</Button>
 						<Button onPress={handleDeleteVaccine} textColor='#d32f2f'>
-							Delete
+							Deletar
 						</Button>
 					</Dialog.Actions>
 				</Dialog>
 			</ScrollView>
 			<Portal>
 				<Modal visible={editModalVisible} onDismiss={() => setEditModalVisible(false)} contentContainerStyle={styles.modalContainer}>
-					<Title style={styles.modalTitle}>Edit Pet</Title>
-					<TextInput label='Pet Name' value={editName} onChangeText={setEditName} mode='outlined' style={styles.modalInput} error={!!errors.name} />
+					<Title style={styles.modalTitle}>Editar Pet</Title>
+					<TextInput label='Nome do Pet' value={editName} onChangeText={setEditName} mode='outlined' style={styles.modalInput} error={!!errors.name} />
 					{errors.name && (
 						<HelperText type='error' visible={true}>
 							{errors.name}
 						</HelperText>
 					)}
-					<TextInput label='Age' value={editAge} onChangeText={setEditAge} keyboardType='numeric' mode='outlined' style={styles.modalInput} error={!!errors.age} />
+					<TextInput label='Idade' value={editAge} onChangeText={setEditAge} keyboardType='numeric' mode='outlined' style={styles.modalInput} error={!!errors.age} />
 					{errors.age && (
 						<HelperText type='error' visible={true}>
 							{errors.age}
@@ -239,23 +239,23 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 					)}
 					<View style={styles.modalButtons}>
 						<Button mode='outlined' onPress={() => setEditModalVisible(false)} style={styles.modalButton}>
-							Cancel
+							Cancelar
 						</Button>
 						<Button mode='contained' onPress={handleEdit} style={styles.modalButton}>
-							Save
+							Salvar
 						</Button>
 					</View>
 				</Modal>
 
 				<Dialog visible={deleteModalVisible} onDismiss={() => setDeleteModalVisible(false)}>
-					<Dialog.Title>Delete Pet</Dialog.Title>
+					<Dialog.Title>Deletar Pet</Dialog.Title>
 					<Dialog.Content>
-						<Paragraph>Are you sure you want to delete {pet?.name}? This action cannot be undone.</Paragraph>
+						<Paragraph>Tem certeza que deseja deletar {pet?.name}? Essa acao não poderá ser desfeita.</Paragraph>
 					</Dialog.Content>
 					<Dialog.Actions>
-						<Button onPress={() => setDeleteModalVisible(false)}>Cancel</Button>
+						<Button onPress={() => setDeleteModalVisible(false)}>Cancelar</Button>
 						<Button onPress={handleDelete} textColor='#d32f2f'>
-							Delete
+							Deletar
 						</Button>
 					</Dialog.Actions>
 				</Dialog>

@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { ProfileScreenProps } from '../types/navigation';
 import { AuthService } from '../services/AuthService';
 import { useRequest } from '../hooks/useRequest';
+import { LoadingOverlay } from '../components/LoadingOverlay';
 
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 	const { user, signOut, updateUserContext } = useAuth(); // Adicione updateUserContext do contexto
@@ -81,6 +82,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
 	return (
 		<KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+			<LoadingOverlay visible={isLoading} text='Updating pet...' />
+
 			<Card style={styles.card}>
 				<Card.Content>
 					<View style={styles.avatarContainer}>
@@ -91,7 +94,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 					<Title style={styles.username}>{user?.username}</Title>
 					<Paragraph style={styles.email}>{user?.email}</Paragraph>
 					<Button mode='contained' onPress={() => setModalVisible(true)} style={styles.editButton}>
-						Edit Profile
+						Editar Profile
 					</Button>
 				</Card.Content>
 			</Card>
@@ -101,7 +104,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 					<ScrollView>
 						<Title style={styles.modalTitle}>Edit Profile</Title>
 
-						<TextInput label='Username' value={username} onChangeText={setUsername} mode='outlined' style={styles.input} error={!!errors.username} />
+						<TextInput label='Apelido' value={username} onChangeText={setUsername} mode='outlined' style={styles.input} error={!!errors.username} />
 						{errors.username && (
 							<HelperText type='error' visible={true}>
 								{errors.username}
@@ -152,10 +155,10 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
 						<View style={styles.buttonContainer}>
 							<Button mode='outlined' onPress={handleCloseModal} style={styles.buttonCancel}>
-								Cancel
+								Cancelar
 							</Button>
 							<Button mode='contained' onPress={handleUpdate} loading={isLoading} disabled={isLoading} style={styles.buttonSave}>
-								Save
+								Salvar
 							</Button>
 						</View>
 					</ScrollView>

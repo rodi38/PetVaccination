@@ -30,7 +30,7 @@ export const Login = ({ navigation }: LoginScreenProps) => {
 		<View style={styles.container}>
 			<LoadingOverlay visible={isLoading} text='Signing in...' />
 
-			<Text style={styles.title}>Pet Vaccination</Text>
+			<Text style={styles.title}>Diario de Pet</Text>
 
 			<TextInput label='Email' value={email} onChangeText={setEmail} mode='outlined' style={styles.input} error={!!errors.email} keyboardType='email-address' autoCapitalize='none' />
 			{errors.email && (
@@ -39,7 +39,7 @@ export const Login = ({ navigation }: LoginScreenProps) => {
 				</HelperText>
 			)}
 
-			<TextInput label='Password' value={password} onChangeText={setPassword} secureTextEntry mode='outlined' style={styles.input} error={!!errors.password} autoCapitalize='none' />
+			<TextInput label='Senha' value={password} onChangeText={setPassword} secureTextEntry mode='outlined' style={styles.input} error={!!errors.password} autoCapitalize='none' />
 			{errors.password && (
 				<HelperText type='error' visible={true}>
 					{errors.password}
@@ -53,11 +53,11 @@ export const Login = ({ navigation }: LoginScreenProps) => {
 			)}
 
 			<Button mode='contained' onPress={handleLogin} loading={isLoading} disabled={isLoading} style={styles.button}>
-				Login
+				Entrar
 			</Button>
 
 			<Button mode='text' onPress={() => navigation.navigate('Register')} disabled={isLoading}>
-				Don't have an account? Register
+				Não tem uma conta? Registrar
 			</Button>
 		</View>
 	);

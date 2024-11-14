@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { TextInput, Button, Text, HelperText, Card, List, Dialog, Portal } from 'react-native-paper';
+import { TextInput, Button, Text, HelperText, Card, List, Dialog, Portal, IconButton, Divider } from 'react-native-paper';
 import { AddVaccinationScreenProps } from '../types/navigation';
 import { useRequest } from '../hooks/useRequest';
 import { VaccineService } from '../services/VaccineService';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { Vaccine } from '../types';
 import DateTimePicker from '@react-native-community/datetimepicker';
+
+const ITEMS_PER_PAGE = 5; // Número de itens por página
 
 export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, navigation }) => {
 	const { petId } = route.params;
@@ -20,12 +22,40 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 	const [showVaccineDialog, setShowVaccineDialog] = useState(false);
 	const [showDatePicker, setShowDatePicker] = useState(false);
 	const [showNextDosePicker, setShowNextDosePicker] = useState(false);
+	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+	const [vaccineToDelete, setVaccineToDelete] = useState<Vaccine | null>(null);
+	const [currentPage, setCurrentPage] = useState(1);
 
 	const { execute, isLoading, errors, generalError, setGeneralError } = useRequest();
 
 	useEffect(() => {
 		loadVaccines();
 	}, []);
+
+	const getCurrentPageItems = () => {
+		const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+		const endIndex = startIndex + ITEMS_PER_PAGE;
+		return vaccines.slice(startIndex, endIndex);
+	};
+
+	const totalPages = Math.ceil(vaccines.length / ITEMS_PER_PAGE);
+
+	const goToNextPage = () => {
+		if (currentPage < totalPages) {
+			setCurrentPage(currentPage + 1);
+		}
+	};
+
+	const goToPrevPage = () => {
+		if (currentPage > 1) {
+			setCurrentPage(currentPage - 1);
+		}
+	};
+
+	const handleCloseDialog = () => {
+		setShowVaccineDialog(false);
+		setCurrentPage(1);
+	};
 
 	const loadVaccines = async () => {
 		const result = await execute(async () => {
@@ -38,6 +68,29 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 			// Pode adicionar uma mensagem caso não encontre vacinas disponíveis
 			setGeneralError('No vaccines available');
 		}
+	};
+
+	const handleDeleteVaccine = async () => {
+		if (!vaccineToDelete) {
+			return;
+		}
+
+		execute(async () => {
+			await VaccineService.deleteVaccine(vaccineToDelete._id);
+			// Atualiza a lista de vacinas após deletar
+			await loadVaccines();
+			// Se a vacina deletada era a selecionada, limpa a seleção
+			if (selectedVaccine?._id === vaccineToDelete._id) {
+				setSelectedVaccine(null);
+			}
+		});
+
+		setShowDeleteConfirm(false);
+		setVaccineToDelete(null);
+	};
+
+	const truncateText = (text: string, maxLength: number = 15) => {
+		return text.length > maxLength ? `${text.substring(0, maxLength - 3)}...` : text;
 	};
 
 	const handleSubmit = async () => {
@@ -79,28 +132,28 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 
 			<Card style={styles.card}>
 				<Card.Content>
-					<List.Item title='Select Vaccine' description={selectedVaccine ? selectedVaccine.name : 'Choose a vaccine'} left={(props) => <List.Icon {...props} icon='needle' />} onPress={() => setShowVaccineDialog(true)} style={[styles.listItem, errors.vaccineId && styles.errorItem]} />
+					<List.Item title='Selecione uma Vacina' description={selectedVaccine ? selectedVaccine.name : 'Escolha uma vacina'} left={(props) => <List.Icon {...props} icon='needle' />} onPress={() => setShowVaccineDialog(true)} style={[styles.listItem, errors.vaccineId && styles.errorItem]} />
 					{errors.vaccineId && (
 						<HelperText type='error' visible={true}>
 							{errors.vaccineId}
 						</HelperText>
 					)}
 
-					<TextInput label='Veterinarian' value={veterinarian} onChangeText={setVeterinarian} mode='outlined' style={styles.input} error={!!errors.veterinarian} />
+					<TextInput label='Veterinário' value={veterinarian} onChangeText={setVeterinarian} mode='outlined' style={styles.input} error={!!errors.veterinarian} />
 					{errors.veterinarian && (
 						<HelperText type='error' visible={true}>
 							{errors.veterinarian}
 						</HelperText>
 					)}
 
-					<TextInput label='Clinic' value={clinic} onChangeText={setClinic} mode='outlined' style={styles.input} error={!!errors.clinic} />
+					<TextInput label='Clínica' value={clinic} onChangeText={setClinic} mode='outlined' style={styles.input} error={!!errors.clinic} />
 					{errors.clinic && (
 						<HelperText type='error' visible={true}>
 							{errors.clinic}
 						</HelperText>
 					)}
 
-					<List.Item title='Vaccination Date' description={formatDate(vaccinationDate)} left={(props) => <List.Icon {...props} icon='calendar' />} onPress={() => setShowDatePicker(true)} style={[styles.listItem, errors.vaccinationDate && styles.errorItem]} />
+					<List.Item title='Data da Vacina' description={formatDate(vaccinationDate)} left={(props) => <List.Icon {...props} icon='calendar' />} onPress={() => setShowDatePicker(true)} style={[styles.listItem, errors.vaccinationDate && styles.errorItem]} />
 					{errors.vaccinationDate && (
 						<HelperText type='error' visible={true}>
 							{errors.vaccinationDate}
@@ -108,7 +161,7 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 					)}
 
 					<List.Item
-						title='Next Dose Date (Optional)'
+						title='Próxima Dose (Opcional)'
 						description={nextDoseDate ? formatDate(nextDoseDate) : 'Set next dose date'}
 						left={(props) => <List.Icon {...props} icon='calendar-clock' />}
 						onPress={() => setShowNextDosePicker(true)}
@@ -120,7 +173,7 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 						</HelperText>
 					)}
 
-					<TextInput label='Notes' value={notes} onChangeText={setNotes} mode='outlined' multiline numberOfLines={4} style={styles.input} error={!!errors.notes} />
+					<TextInput label='Observação' value={notes} onChangeText={setNotes} mode='outlined' multiline numberOfLines={4} style={styles.input} error={!!errors.notes} />
 					{errors.notes && (
 						<HelperText type='error' visible={true}>
 							{errors.notes}
@@ -136,11 +189,11 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 			</Card>
 
 			<Button mode='contained' onPress={handleSubmit} style={styles.submitButton} disabled={!selectedVaccine || isLoading}>
-				Save Vaccination
+				Salvar Vacina
 			</Button>
 
 			{/* Vaccine Selection Dialog */}
-			<Portal>
+			{/* <Portal>
 				<Dialog visible={showVaccineDialog} onDismiss={() => setShowVaccineDialog(false)}>
 					<Dialog.Title>Select Vaccine</Dialog.Title>
 					<Dialog.Content>
@@ -157,8 +210,67 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 						))}
 					</Dialog.Content>
 				</Dialog>
-			</Portal>
+			</Portal> */}
 
+			<Portal>
+				<Dialog visible={showVaccineDialog} onDismiss={handleCloseDialog}>
+					<Dialog.Title>Selecione a Vacina</Dialog.Title>
+					<Dialog.Content>
+						<View style={styles.paginationInfo}>
+							<Text>
+								Mostrando {Math.min(ITEMS_PER_PAGE * currentPage, vaccines.length)} de {vaccines.length} vacinas
+							</Text>
+						</View>
+
+						{getCurrentPageItems().map((vaccine) => (
+							<List.Item
+								key={vaccine._id}
+								title={truncateText(vaccine.name)}
+								description={vaccine.description}
+								onPress={() => {
+									setSelectedVaccine(vaccine);
+									handleCloseDialog();
+								}}
+								right={(props) => (
+									<IconButton
+										{...props}
+										icon='delete'
+										iconColor='#ff0000'
+										onPress={(e) => {
+											e.stopPropagation();
+											setVaccineToDelete(vaccine);
+											setShowDeleteConfirm(true);
+										}}
+									/>
+								)}
+							/>
+						))}
+
+						<Divider style={styles.divider} />
+
+						<View style={styles.paginationControls}>
+							<IconButton icon='chevron-left' onPress={goToPrevPage} disabled={currentPage === 1} />
+							<Text>
+								Página {currentPage} de {totalPages}
+							</Text>
+							<IconButton icon='chevron-right' onPress={goToNextPage} disabled={currentPage === totalPages} />
+						</View>
+					</Dialog.Content>
+				</Dialog>
+				{/* Delete Confirmation Dialog */}
+				<Dialog visible={showDeleteConfirm} onDismiss={() => setShowDeleteConfirm(false)}>
+					<Dialog.Title>Deletar vacina</Dialog.Title>
+					<Dialog.Content>
+						<Text>Tem certeza de que deseja deletar {vaccineToDelete?.name}?</Text>
+					</Dialog.Content>
+					<Dialog.Actions>
+						<Button onPress={() => setShowDeleteConfirm(false)}>Cancelar</Button>
+						<Button onPress={handleDeleteVaccine} textColor='#ff0000'>
+							Deletar
+						</Button>
+					</Dialog.Actions>
+				</Dialog>
+			</Portal>
 			{/* Date Pickers */}
 			{showDatePicker && (
 				<DateTimePicker
@@ -221,5 +333,18 @@ const styles = StyleSheet.create({
 	generalError: {
 		textAlign: 'center',
 		marginTop: 8,
+	},
+	paginationControls: {
+		flexDirection: 'row',
+		justifyContent: 'center',
+		alignItems: 'center',
+		paddingVertical: 8,
+	},
+	paginationInfo: {
+		alignItems: 'center',
+		marginBottom: 8,
+	},
+	divider: {
+		marginVertical: 8,
 	},
 });
