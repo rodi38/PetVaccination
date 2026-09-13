@@ -7,13 +7,9 @@ export class PetService {
 		return response.data;
 	}
 
-	static async getAllPetsByOwnerId(ownerId?: string): Promise<Pet[] | undefined> {
-		try {
-			const response = await api.get(`pets/owner/${ownerId}`);
-			return response.data;
-		} catch (error) {
-			console.error('Error fetching pets:', error);
-		}
+	static async getAllPetsByOwnerId(ownerId: string): Promise<Pet[]> {
+		const response = await api.get(`pets/owner/${ownerId}`);
+		return response.data;
 	}
 
 	static async getPetById(id: string): Promise<Pet> {
@@ -29,8 +25,6 @@ export class PetService {
 
 	static async updatePet(id: string, petData: Partial<CreatePetDTO>): Promise<Pet> {
 		const response = await api.put(`/pets/${id}`, petData);
-		console.log(response.data);
-
 		return response.data;
 	}
 

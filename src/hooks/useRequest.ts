@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { ValidationError, APIError } from '../types/errors';
+import { APIError } from '../types/errors';
 
 interface RequestOptions {
 	showFullScreenLoading?: boolean;
@@ -27,18 +27,18 @@ export const useRequest = (defaultOptions: RequestOptions = {}) => {
 				return result;
 			} catch (err) {
 				const apiError = err as APIError;
+				const error = apiError.response?.data?.error;
 
-				if (apiError.response?.data?.error === 'Validation error') {
-					const validationError = apiError.response.data as ValidationError;
+				if (error?.details) {
 					const newErrors: ValidationErrors = {};
 
-					validationError.details.forEach((detail) => {
+					error.details.forEach((detail) => {
 						newErrors[detail.field] = detail.message;
 					});
 
 					setErrors(newErrors);
 				} else {
-					setGeneralError(apiError.response?.data?.error || 'An error occurred');
+					setGeneralError(error?.message || 'An error occurred');
 				}
 
 				return null;

@@ -31,8 +31,6 @@ export class AuthService {
 			const response = await api.post('/auth/login', { email, password });
 			const { user, token } = response.data;
 
-			console.log(response.data);
-
 			await this.saveAuthData(user, token);
 
 			return { user, token };

@@ -25,17 +25,17 @@ export class VaccineService {
 	}
 
 	static async getPetVaccines(petId: string): Promise<PetVaccineResponse> {
-		const response = await api.get(`/vaccines/pet/${petId}`);
+		const response = await api.get(`/vaccines/pets/${petId}`);
 		return response.data;
 	}
 
 	static async getPetVaccineCount(petId: string): Promise<number> {
-		const response = await api.get<VaccineCount>(`vaccines/pet/${petId}/count`);
+		const response = await api.get<VaccineCount>(`vaccines/pets/${petId}/count`);
 		return response.data.count;
 	}
 
 	static async createPetVaccine(data: CreateVaccinationDTO): Promise<VaccinationRecord> {
-		const response = await api.post('/vaccines/pet/add', data);
+		const response = await api.post('/vaccines/pets', data);
 		return response.data;
 	}
 
@@ -49,19 +49,13 @@ export class VaccineService {
 		return response.data;
 	}
 
-	static async getPetVaccineDetails(vaccinationId?: string, petId?: string) {
-		try {
-			console.log('vaccinationId', vaccinationId, 'petId', petId);
-
-			const response = await api.get(`/vaccines/details/${vaccinationId}/pet/${petId}`);
-			return response.data;
-		} catch (error) {
-			console.error('Error fetching vaccination details:', error);
-		}
+	static async getPetVaccineDetails(vaccinationId: string, petId: string) {
+		const response = await api.get(`/vaccines/${vaccinationId}/pets/${petId}`);
+		return response.data;
 	}
 
 	static async deletePetVaccine(vaccineId: string, petId: string): Promise<void> {
-		await api.delete(`/vaccines/pet/${petId}/vaccine/${vaccineId}`);
+		await api.delete(`/vaccines/${vaccineId}/pets/${petId}`);
 	}
 
 	static async deleteVaccine(vaccineId: string): Promise<void> {

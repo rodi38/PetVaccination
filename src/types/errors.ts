@@ -3,14 +3,19 @@ export interface ValidationErrorDetail {
 	message: string;
 }
 
-export interface ValidationError {
-	error: string;
-	details: ValidationErrorDetail[];
+export interface ApiErrorPayload {
+	message: string;
+	code?: string;
+	details?: ValidationErrorDetail[];
 }
 
 export interface APIError {
 	response?: {
-		data?: ValidationError;
+		data?: {
+			success: false;
+			data: null;
+			error: ApiErrorPayload;
+		};
 		status?: number;
 	};
 }
