@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
-import api from './api';
+import api, { setAuthToken } from './api';
 import { User } from '../types/index';
 
 interface TokenPayload {
@@ -58,8 +58,8 @@ export class AuthService {
 
 	static async logout() {
 		try {
-			await AsyncStorage.multiRemove(['@user', '@token']);
-			delete api.defaults.headers.common.Authorization;
+			await AsyncStorage.removeItem('@user');
+			await setAuthToken(null);
 		} catch (error) {
 			console.error('Error during logout:', error);
 			throw error;
@@ -68,11 +68,8 @@ export class AuthService {
 
 	static async saveAuthData(user: User, token: string) {
 		try {
-			await AsyncStorage.multiSet([
-				['@user', JSON.stringify(user)],
-				['@token', token],
-			]);
-			api.defaults.headers.common.Authorization = `Bearer ${token}`;
+			await AsyncStorage.setItem('@user', JSON.stringify(user));
+			await setAuthToken(token);
 		} catch (error) {
 			console.error('Error saving auth data:', error);
 			throw error;
