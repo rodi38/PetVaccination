@@ -1,13 +1,13 @@
-import { CreatePetDTO, Pet } from '../types';
+import { CreatePetDTO, PaginatedResponse, Pet } from '../types';
 import api from './api';
 
 export class PetService {
-	static async getAllPets(): Promise<Pet[]> {
+	static async getAllPets(): Promise<PaginatedResponse<Pet>> {
 		const response = await api.get('/pets');
 		return response.data;
 	}
 
-	static async getAllPetsByOwnerId(ownerId: string): Promise<Pet[]> {
+	static async getAllPetsByOwnerId(ownerId: string): Promise<PaginatedResponse<Pet>> {
 		const response = await api.get(`pets/owner/${ownerId}`);
 		return response.data;
 	}

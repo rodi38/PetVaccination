@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { TextInput, Button, Text, HelperText } from 'react-native-paper';
+import { TextInput, Button, Text, HelperText, List } from 'react-native-paper';
 import { SelectList } from 'react-native-dropdown-select-list';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { AddPetScreenProps } from '../types/navigation';
 import { PetService } from '../services/PetService';
-import { useAuth } from '../contexts/AuthContext';
 import { petTypes } from '../types';
 import { useRequest } from '../hooks/useRequest';
 import { LoadingOverlay } from '../components/LoadingOverlay';
@@ -12,13 +12,20 @@ import { LoadingOverlay } from '../components/LoadingOverlay';
 type PetType = keyof typeof petTypes;
 
 export const AddPet: React.FC<AddPetScreenProps> = ({ navigation }) => {
-	const { user } = useAuth();
 	const [name, setName] = useState('');
 	const [petType, setPetType] = useState<PetType | ''>('');
 	const [breed, setBreed] = useState('');
 	const [gender, setGender] = useState('');
-	const [age, setAge] = useState('');
-	const { execute, isLoading, errors, generalError } = useRequest();
+	const [birthDate, setBirthDate] = useState<Date | null>(null);
+	const [showDatePicker, setShowDatePicker] = useState(false);
+	const { execute, isLoading, errors, generalError, setErrors } = useRequest();
+
+	const formatBirthDate = (date: Date) =>
+		date.toLocaleDateString('pt-BR', {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+		});
 
 	const breeds = {
 		Dog: [
@@ -77,12 +84,15 @@ export const AddPet: React.FC<AddPetScreenProps> = ({ navigation }) => {
 		{ key: 'other', value: 'Outro' },
 	];
 	const handleSubmit = async () => {
-		if (!name || !petType || !breed || !gender || !age) {
-			return;
-		}
+		const newErrors: Record<string, string> = {};
+		if (!name) newErrors.name = 'Nome do pet é obrigatório';
+		if (!petType) newErrors.petType = 'Tipo do pet é obrigatório';
+		if (!breed) newErrors.breed = 'Raça é obrigatória';
+		if (!gender) newErrors.gender = 'Gênero é obrigatório';
+		if (!birthDate) newErrors.birthDate = 'Data de nascimento é obrigatória';
 
-		const ageNumber = parseInt(age);
-		if (isNaN(ageNumber) || ageNumber < 0) {
+		if (Object.keys(newErrors).length > 0) {
+			setErrors(newErrors);
 			return;
 		}
 
@@ -91,13 +101,13 @@ export const AddPet: React.FC<AddPetScreenProps> = ({ navigation }) => {
 			petType: petTypes[petType as PetType],
 			breed,
 			gender,
-			age: ageNumber,
-			owner: user?._id,
+			birthDate: birthDate!.toISOString(),
 		};
 
 		const result = await execute(() => PetService.createPet(petData), {
 			showFullScreenLoading: true,
 			loadingText: 'Creating pet...',
+			successMessage: 'Pet cadastrado com sucesso!',
 		});
 
 		if (result) {
@@ -157,11 +167,32 @@ export const AddPet: React.FC<AddPetScreenProps> = ({ navigation }) => {
 				</HelperText>
 			)}
 
-			<TextInput label='Idade' value={age} onChangeText={setAge} keyboardType='numeric' mode='outlined' style={styles.input} error={!!errors.age} />
-			{errors.age && (
+			<Text style={styles.label}>Data de Nascimento</Text>
+			<List.Item
+				title={birthDate ? formatBirthDate(birthDate) : 'Selecionar data de nascimento'}
+				left={(props) => <List.Icon {...props} icon='calendar' />}
+				onPress={() => setShowDatePicker(true)}
+				style={[styles.selectBox, errors.birthDate && { borderColor: '#ff0000', borderWidth: 1 }]}
+			/>
+			{errors.birthDate && (
 				<HelperText type='error' visible={true}>
-					{errors.age}
+					{errors.birthDate}
 				</HelperText>
+			)}
+
+			{showDatePicker && (
+				<DateTimePicker
+					value={birthDate || new Date()}
+					mode='date'
+					display='default'
+					maximumDate={new Date()}
+					onChange={(event, date) => {
+						setShowDatePicker(false);
+						if (date) {
+							setBirthDate(date);
+						}
+					}}
+				/>
 			)}
 
 			{generalError && (

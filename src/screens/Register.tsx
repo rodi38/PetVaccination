@@ -10,17 +10,24 @@ export const Register = ({ navigation }: RegisterScreenProps) => {
 	const [username, setUsername] = useState('');
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
+	const [confirmPassword, setConfirmPassword] = useState('');
 	const { register } = useAuth();
-	const { execute, isLoading, errors, generalError } = useRequest();
+	const { execute, isLoading, errors, generalError, setErrors } = useRequest();
 
 	const handleRegister = async () => {
-		if (!email || !password || !username) {
+		if (!email || !password || !username || !confirmPassword) {
+			return;
+		}
+
+		if (password !== confirmPassword) {
+			setErrors({ confirmPassword: 'As senhas não coincidem' });
 			return;
 		}
 
 		const result = await execute(() => register(username, email, password), {
 			showFullScreenLoading: true,
 			loadingText: 'Creating account...',
+			successMessage: 'Conta criada com sucesso! Faça login para continuar.',
 		});
 
 		if (result) {
@@ -51,6 +58,13 @@ export const Register = ({ navigation }: RegisterScreenProps) => {
 			{errors.password && (
 				<HelperText type='error' visible={true}>
 					{errors.password}
+				</HelperText>
+			)}
+
+			<TextInput label='Confirmar Senha' value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry mode='outlined' style={styles.input} error={!!errors.confirmPassword} />
+			{errors.confirmPassword && (
+				<HelperText type='error' visible={true}>
+					{errors.confirmPassword}
 				</HelperText>
 			)}
 

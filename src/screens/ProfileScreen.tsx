@@ -16,7 +16,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 	const [currentPassword, setCurrentPassword] = useState('');
 	const [newPassword, setNewPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
-	const { execute, isLoading, errors, generalError } = useRequest();
+	const { execute, isLoading, errors, generalError, setErrors } = useRequest();
 
 	// Função para resetar o formulário
 	const resetForm = () => {
@@ -52,14 +52,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
 		if (showPasswordFields) {
 			if (newPassword !== confirmPassword) {
-				// Você pode usar setErrors aqui se quiser mostrar o erro nos campos específicos
+				setErrors({ confirmPassword: 'As senhas não coincidem' });
 				return;
 			}
 			updateData.currentPassword = currentPassword;
 			updateData.newPassword = newPassword;
 		}
 
-		const result = await execute(
+		await execute(
 			async () => {
 				const updatedUser = await AuthService.updateUser(user._id, updateData);
 				if (updateUserContext) {
@@ -71,13 +71,9 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 			{
 				showFullScreenLoading: true,
 				loadingText: 'Updating profile...',
+				successMessage: 'Perfil atualizado com sucesso!',
 			},
 		);
-
-		if (result) {
-			// Atualização bem-sucedida
-			// Você pode adicionar uma mensagem de sucesso aqui se desejar
-		}
 	};
 
 	return (

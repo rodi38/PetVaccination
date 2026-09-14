@@ -63,7 +63,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
 				if (petsResponse) {
 					const petsWithVaccines = await Promise.all(
-						petsResponse.map(async (pet) => {
+						petsResponse.items.map(async (pet) => {
 							const vaccineCount = await VaccineService.getPetVaccineCount(pet._id);
 							return {
 								...pet,

@@ -8,6 +8,7 @@ import { PetService } from '../services/PetService';
 import { VaccineService } from '../services/VaccineService';
 import { useRequest } from '../hooks/useRequest';
 import { LoadingOverlay } from '../components/LoadingOverlay';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PetDetails'>;
 
@@ -19,11 +20,19 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 	const [editModalVisible, setEditModalVisible] = useState(false);
 	const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 	const [editName, setEditName] = useState('');
-	const [editAge, setEditAge] = useState('');
+	const [editBirthDate, setEditBirthDate] = useState<Date | null>(null);
+	const [showDatePicker, setShowDatePicker] = useState(false);
 	const { execute, isLoading, errors } = useRequest();
 
 	const [deleteVaccineModalVisible, setDeleteVaccineModalVisible] = useState(false);
 	const [selectedVaccineId, setSelectedVaccineId] = useState<string>('');
+
+	const formatBirthDate = (date: Date) =>
+		date.toLocaleDateString('pt-BR', {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+		});
 
 	const truncateText = (text: string, maxLength: number) => {
 		return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
@@ -38,7 +47,7 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 			// Fetch pet vaccinations
 			const petVaccinations = await VaccineService.getPetVaccines(petId);
 
-			setVaccineData(petVaccinations as PetVaccineResponse);
+			setVaccineData(petVaccinations);
 		} catch (error) {
 			console.error('Error fetching pet details:', error);
 		}
@@ -59,12 +68,7 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 	}, [navigation]);
 
 	const handleEdit = async () => {
-		if (!pet) {
-			return;
-		}
-
-		const ageNumber = parseInt(editAge);
-		if (isNaN(ageNumber) || ageNumber < 0) {
+		if (!pet || !editBirthDate) {
 			return;
 		}
 
@@ -72,21 +76,20 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 			() =>
 				PetService.updatePet(petId, {
 					name: editName,
-					age: ageNumber,
+					birthDate: editBirthDate.toISOString(),
 					// mantemos os outros campos inalterados
 					petType: pet.petType,
 					breed: pet.breed,
 					gender: pet.gender,
-					owner: pet.owner,
 				}),
 			{
 				showFullScreenLoading: true,
 				loadingText: 'Updating pet...',
+				successMessage: 'Pet atualizado com sucesso!',
 			},
 		);
 
 		if (result) {
-			setPet({ ...pet, name: editName, age: ageNumber });
 			setEditModalVisible(false);
 			fetchPetDetails(); // Atualiza os dados
 		}
@@ -96,6 +99,7 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 		const result = await execute(() => PetService.deletePet(petId), {
 			showFullScreenLoading: true,
 			loadingText: 'Deleting pet...',
+			successMessage: 'Pet excluído com sucesso!',
 		});
 
 		if (result !== null) {
@@ -105,7 +109,7 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 	const openEditModal = () => {
 		if (pet) {
 			setEditName(pet.name);
-			setEditAge(pet.age.toString());
+			setEditBirthDate(new Date(pet.birthDate));
 			setEditModalVisible(true);
 		}
 	};
@@ -124,9 +128,10 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 	};
 
 	const handleDeleteVaccine = async () => {
-		const result = await execute(() => VaccineService.deletePetVaccine(selectedVaccineId, petId), {
+		const result = await execute(() => VaccineService.deletePetVaccine(petId, selectedVaccineId), {
 			showFullScreenLoading: true,
 			loadingText: 'Deleting vaccination...',
+			successMessage: 'Vacina excluída com sucesso!',
 		});
 
 		if (result !== null) {
@@ -163,11 +168,11 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 						<View style={styles.vaccinationHeader}>
 							<View style={styles.titleContainer}>
 								<Title style={styles.sectionTitle}>Vacinas</Title>
-								<Title style={styles.vaccineCount}>Total: {vaccineData?.totalVaccinations || 0}</Title>
+								<Title style={styles.vaccineCount}>Total: {vaccineData?.total || 0}</Title>
 							</View>
 						</View>
 
-						{vaccineData?.vaccinations.map((vaccination, index) => (
+						{vaccineData?.items.map((vaccination, index) => (
 							<React.Fragment key={vaccination.vaccine._id}>
 								<List.Item
 									title={() => (
@@ -197,11 +202,11 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 									}
 									style={styles.vaccinationItem}
 								/>
-								{index < vaccineData.vaccinations.length - 1 && <Divider />}
+								{index < vaccineData.items.length - 1 && <Divider />}
 							</React.Fragment>
 						))}
 
-						{!vaccineData?.vaccinations.length && <Paragraph style={styles.noVaccines}>Nenhuma vacina para este pet</Paragraph>}
+						{!vaccineData?.items.length && <Paragraph style={styles.noVaccines}>Nenhuma vacina para este pet</Paragraph>}
 					</Card.Content>
 				</Card>
 
@@ -231,11 +236,30 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 							{errors.name}
 						</HelperText>
 					)}
-					<TextInput label='Idade' value={editAge} onChangeText={setEditAge} keyboardType='numeric' mode='outlined' style={styles.modalInput} error={!!errors.age} />
-					{errors.age && (
+					<List.Item
+						title={editBirthDate ? formatBirthDate(editBirthDate) : 'Selecionar data de nascimento'}
+						left={(props) => <List.Icon {...props} icon='calendar' />}
+						onPress={() => setShowDatePicker(true)}
+						style={[styles.modalInput, errors.birthDate && { borderColor: '#ff0000', borderWidth: 1 }]}
+					/>
+					{errors.birthDate && (
 						<HelperText type='error' visible={true}>
-							{errors.age}
+							{errors.birthDate}
 						</HelperText>
+					)}
+					{showDatePicker && (
+						<DateTimePicker
+							value={editBirthDate || new Date()}
+							mode='date'
+							display='default'
+							maximumDate={new Date()}
+							onChange={(event, date) => {
+								setShowDatePicker(false);
+								if (date) {
+									setEditBirthDate(date);
+								}
+							}}
+						/>
 					)}
 					<View style={styles.modalButtons}>
 						<Button mode='outlined' onPress={() => setEditModalVisible(false)} style={styles.modalButton}>

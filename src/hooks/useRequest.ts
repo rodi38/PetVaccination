@@ -1,9 +1,11 @@
 import { useState, useCallback } from 'react';
+import Toast from 'react-native-toast-message';
 import { APIError } from '../types/errors';
 
 interface RequestOptions {
 	showFullScreenLoading?: boolean;
 	loadingText?: string;
+	successMessage?: string;
 }
 
 interface ValidationErrors {
@@ -24,6 +26,11 @@ export const useRequest = (defaultOptions: RequestOptions = {}) => {
 				setErrors({});
 				setGeneralError(null);
 				const result = await asyncFunction();
+
+				if (finalOptions.successMessage) {
+					Toast.show({ type: 'success', text1: finalOptions.successMessage });
+				}
+
 				return result;
 			} catch (err) {
 				const apiError = err as APIError;
@@ -37,8 +44,11 @@ export const useRequest = (defaultOptions: RequestOptions = {}) => {
 					});
 
 					setErrors(newErrors);
+					Toast.show({ type: 'error', text1: 'Verifique os campos do formulário' });
 				} else {
-					setGeneralError(error?.message || 'An error occurred');
+					const message = error?.message || 'Ocorreu um erro';
+					setGeneralError(message);
+					Toast.show({ type: 'error', text1: message });
 				}
 
 				return null;

@@ -11,10 +11,19 @@ export interface Pet {
 	petType: string;
 	breed: string;
 	gender: string;
-	age: number;
+	age: number; // calculado pelo backend a partir de birthDate
+	birthDate: string;
 	owner: string;
 	createdAt: Date;
 	updatedAt: Date;
+}
+
+export interface PaginatedResponse<T> {
+	items: T[];
+	page: number;
+	limit: number;
+	total: number;
+	totalPages: number;
 }
 
 export interface Vaccine {
@@ -41,8 +50,11 @@ export interface VaccinationDetailsResponse {
 
 export interface PetVaccineResponse {
 	petId: string;
-	vaccinations: VaccinationRecord[];
-	totalVaccinations: number;
+	items: VaccinationRecord[];
+	page: number;
+	limit: number;
+	total: number;
+	totalPages: number;
 }
 
 export interface PetVaccine {
@@ -63,8 +75,7 @@ export interface CreatePetDTO {
 	petType: string;
 	breed: string;
 	gender: string;
-	age: number;
-	owner: string; // ID do usuário
+	birthDate: string; // ISO date-time
 }
 
 export const petTypes = {

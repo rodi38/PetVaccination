@@ -13,7 +13,7 @@ interface AuthContextData {
 	loading: boolean;
 	signIn(email: string, password: string): Promise<void>;
 	signOut(): Promise<void>;
-	register(username: string, email: string, password: string): Promise<void>;
+	register(username: string, email: string, password: string): Promise<boolean>;
 	updateUserContext(user: User): void;
 }
 
@@ -66,6 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	const register = async (username: string, email: string, password: string) => {
 		try {
 			await AuthService.register(username, email, password);
+			return true;
 		} catch (error) {
 			throw error;
 		}

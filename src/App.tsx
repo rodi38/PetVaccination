@@ -5,6 +5,7 @@ import { Routes } from './routes';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Toast from 'react-native-toast-message';
 
 const theme = {
 	colors: {
@@ -27,6 +28,7 @@ const App = () => {
 					<AuthProvider>
 						<Routes />
 					</AuthProvider>
+					<Toast />
 				</PaperProvider>
 			</GestureHandlerRootView>
 		</SafeAreaProvider>

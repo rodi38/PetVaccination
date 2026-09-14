@@ -60,8 +60,8 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 	const loadVaccines = async () => {
 		const result = await execute(async () => {
 			const availableVaccines = await VaccineService.getAllVaccines();
-			setVaccines(availableVaccines);
-			return availableVaccines;
+			setVaccines(availableVaccines.items);
+			return availableVaccines.items;
 		});
 
 		if (!result || result.length === 0) {
@@ -101,16 +101,17 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 		const vaccineData = {
 			petId,
 			vaccineId: selectedVaccine._id,
-			vaccinationDate,
+			vaccinationDate: vaccinationDate.toISOString(),
 			notes: notes.trim() || undefined, // Se vazio, envia undefined
 			veterinarian: veterinarian.trim() || undefined, //
-			nextDoseDate: nextDoseDate || undefined, // Se vazio, envia undefined
+			nextDoseDate: nextDoseDate ? nextDoseDate.toISOString() : undefined, // Se vazio, envia undefined
 			clinic: clinic.trim() || undefined, // Se vazio, envia undefined
 		};
 
 		const result = await execute(() => VaccineService.createPetVaccine(vaccineData), {
 			showFullScreenLoading: true,
 			loadingText: 'Saving vaccination...',
+			successMessage: 'Vacina cadastrada com sucesso!',
 		});
 
 		if (result) {
