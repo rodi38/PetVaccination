@@ -1,79 +1,84 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# PetVaccination
 
-# Getting Started
+App mobile do PetVac (React Native), para cadastro de pets e controle de suas vacinações. Consome a API [PetVacApi](https://github.com/rodi38/PetVacApi).
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+## Sumário
 
-## Step 1: Start the Metro Server
+- [Stack](#stack)
+- [Estrutura](#estrutura)
+- [Autenticação e sessão](#autenticação-e-sessão)
+- [Configuração](#configuração)
+- [Como rodar](#como-rodar)
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+## Stack
 
-To start Metro, run the following command from the _root_ of your React Native project:
+- **React Native 0.76** + **TypeScript**
+- **React Navigation** (`stack`/`native-stack`) — navegação
+- **axios** — cliente HTTP
+- **@react-native-async-storage/async-storage** — persistência local de sessão (`@token`, `@user`)
+- **jwt-decode** — checagem de expiração do JWT no cliente
+- **react-native-paper** — componentes de UI (Material Design)
+- **react-native-config** — variáveis de ambiente (`API_URL`)
+- **react-native-image-picker** + **react-native-fs** — foto do pet (armazenada localmente no dispositivo)
+- **react-native-toast-message** — feedback de erros/sucesso
+- **Jest** — testes
 
-```bash
-# using npm
-npm start
+## Estrutura
 
-# OR using Yarn
-yarn start
+```
+src/
+  App.tsx                    # providers globais (Paper, SafeArea, GestureHandler, AuthProvider, Toast)
+  routes/index.tsx           # Stack Navigator; alterna rotas autenticadas/públicas conforme AuthContext
+  contexts/AuthContext.tsx   # estado global de sessão (user, loading, signIn/signOut/register)
+  services/
+    api.ts                   # instância axios, injeta/remove Bearer token, desembrulha { success, data, error }
+    AuthService.ts           # login/register/update/logout, expiração de token, persistência em AsyncStorage
+    PetService.ts            # chamadas de /pets
+    VaccineService.ts        # chamadas de /vaccines e vacinações
+    LocalImageService.ts     # leitura/gravação da foto do pet no filesystem local
+  screens/                   # Login, Register, HomeScreen, PetDetails, AddPet, AddVaccination(Screen),
+                              # AddVaccineTypeScreen, VaccinationDetailsScreen, ProfileScreen
+  hooks/
+    useRequest.ts             # wrapper de chamada de API com loading/erro padronizados
+    useFormValidation.tsx     # validação de formulários
+  types/
+    index.ts                  # tipos de domínio (User, Pet, Vaccine, ...)
+    navigation.ts              # RootStackParamList e props tipadas de cada tela
+    errors.ts                  # tipos de erro da API
 ```
 
-## Step 2: Start your Application
+## Autenticação e sessão
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
+- `api.ts` centraliza a instância axios: `setAuthToken` grava/remove o token no `AsyncStorage` e no header `Authorization`; o interceptor de resposta desembrulha o envelope `{ success, data, error }` da API para `response.data`.
+- Em qualquer resposta `401`, o interceptor limpa a sessão (`@token`/`@user`) e chama `globalThis.forceLogout` (atribuído pelo `AuthContext` ao `signOut`), derrubando o usuário para a tela de login.
+- `AuthService.loadAuthData` roda no boot do app (via `AuthContext`): decodifica o JWT salvo, verifica expiração local com `jwt-decode` e, se válido, restaura o header `Authorization`.
+- `routes/index.tsx` decide entre o stack autenticado (Home, PetDetails, AddPet, Profile, AddVaccination, VaccinationDetails, AddVaccineType) e o público (Login, Register) com base em `user` do `AuthContext`.
 
-### For Android
+## Configuração
+
+Variável de ambiente definida via `react-native-config` (arquivo `.env`, veja `.env.example`):
+
+| Variável  | Descrição                                                                                                              |
+| --------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `API_URL` | URL base da API, incluindo o prefixo `/api/v1` (ex: `http://10.0.2.2:5000/api/v1` no emulador Android, que aponta para o `localhost` da máquina host) |
+
+## Como rodar
+
+Pré-requisitos: ambiente React Native configurado ([guia oficial](https://reactnative.dev/docs/environment-setup)), e a [PetVacApi](../PetVacApi) rodando.
 
 ```bash
-# using npm
-npm run android
+npm install
+cp .env.example .env   # ajustar API_URL
 
-# OR using Yarn
-yarn android
+npm start               # inicia o Metro bundler
+
+npm run android         # em outro terminal, com emulador/dispositivo Android conectado
+npm run ios             # ou com simulador/dispositivo iOS (macOS)
 ```
 
-### For iOS
+Testes e lint:
 
 ```bash
-# using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
+npm test
+npm run lint       # eslint + tsc --noEmit
 ```
-
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
-
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
-
-## Step 3: Modifying your App
-
-Now that you have successfully run the app, let's modify it.
-
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
-
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
