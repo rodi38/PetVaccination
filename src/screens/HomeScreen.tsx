@@ -106,7 +106,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 			<Card.Content>
 				<Title style={styles.petName}>{pet.name}</Title>
 				<Paragraph style={styles.petInfo}>
-					{pet.breed} • {pet.age} {pet.age === 1 ? 'year' : 'years'} old
+					{pet.breed} • {pet.age} {pet.age === 1 ? 'ano' : 'anos'}
 				</Paragraph>
 				<Paragraph style={styles.vaccineCount}>Vacinas: {pet.vaccineCount}</Paragraph>
 			</Card.Content>

@@ -1,11 +1,9 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const local = 'http://10.0.2.2:5000/api/v1'; // Altere para seu IP local quando necessário
-const prod = 'https://petvacapi.onrender.com/api/v1';
+import Config from 'react-native-config';
 
 const api = axios.create({
-	baseURL: local, // Altere para seu IP local quando necessário
+	baseURL: Config.API_URL,
 });
 
 export const setAuthToken = async (token: string | null) => {
