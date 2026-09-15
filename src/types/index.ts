@@ -12,6 +12,7 @@ export interface Pet {
 	breed: string;
 	gender: string;
 	age: number; // calculado pelo backend a partir de birthDate
+	ageDetail: { unit: "weeks" | "months"; value: number } | null; // preenchido pelo backend quando age < 1
 	birthDate: string;
 	owner: string;
 	createdAt: Date;

@@ -15,6 +15,15 @@ interface PetWithVaccineCount extends Pet {
 
 const ITEMS_PER_PAGE = 6;
 
+function formatPetAge(pet: Pet): string {
+	if (pet.ageDetail) {
+		const { unit, value } = pet.ageDetail;
+		const label = unit === 'weeks' ? (value === 1 ? 'semana' : 'semanas') : value === 1 ? 'mês' : 'meses';
+		return `${value} ${label}`;
+	}
+	return `${pet.age} ${pet.age === 1 ? 'ano' : 'anos'}`;
+}
+
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 	const { user } = useAuth();
 	const [pets, setPets] = useState<PetWithVaccineCount[]>([]);
@@ -106,7 +115,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 			<Card.Content>
 				<Title style={styles.petName}>{pet.name}</Title>
 				<Paragraph style={styles.petInfo}>
-					{pet.breed} • {pet.age} {pet.age === 1 ? 'ano' : 'anos'}
+					{pet.breed} • {formatPetAge(pet)}
 				</Paragraph>
 				<Paragraph style={styles.vaccineCount}>Vacinas: {pet.vaccineCount}</Paragraph>
 			</Card.Content>
