@@ -227,7 +227,6 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 							<List.Item
 								key={vaccine._id}
 								title={truncateText(vaccine.name)}
-								description={vaccine.description}
 								onPress={() => {
 									setSelectedVaccine(vaccine);
 									handleCloseDialog();

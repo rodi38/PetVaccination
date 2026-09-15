@@ -31,6 +31,7 @@ export const Routes = () => {
 	return (
 		<NavigationContainer>
 			<Stack.Navigator
+				id={undefined}
 				screenOptions={{
 					headerStyle: {
 						backgroundColor: '#2e7d32',

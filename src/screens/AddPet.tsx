@@ -137,7 +137,7 @@ export const AddPet: React.FC<AddPetScreenProps> = ({ navigation }) => {
 				data={petTypeData}
 				save="key"
 				placeholder="Selecionar Tipo de Pet"
-				boxStyles={[styles.selectBox, errors.petType && styles.errorBorder]}
+				boxStyles={StyleSheet.flatten([styles.selectBox, errors.petType && styles.errorBorder])}
 				dropdownStyles={styles.dropdown}
 				search={false}
 			/>
@@ -151,7 +151,7 @@ export const AddPet: React.FC<AddPetScreenProps> = ({ navigation }) => {
 			{petType === 'Other' ? (
 				<TextInput label="Breed" value={breed} onChangeText={setBreed} mode="outlined" style={styles.input} error={!!errors.breed} />
 			) : (
-				<SelectList setSelected={setBreed} data={getBreedData()} save="key" placeholder="Selecionar Raça" boxStyles={[styles.selectBox, errors.breed && styles.errorBorder]} dropdownStyles={styles.dropdown} search={true} searchPlaceholder="Search breed" disabled={!petType} />
+				<SelectList setSelected={setBreed} data={getBreedData()} save="key" placeholder="Selecionar Raça" boxStyles={StyleSheet.flatten([styles.selectBox, errors.breed && styles.errorBorder])} dropdownStyles={styles.dropdown} search={true} searchPlaceholder="Search breed" />
 			)}
 			{errors.breed && (
 				<HelperText type="error" visible={true}>
@@ -160,7 +160,7 @@ export const AddPet: React.FC<AddPetScreenProps> = ({ navigation }) => {
 			)}
 
 			<Text style={styles.label}>Gênero</Text>
-			<SelectList setSelected={setGender} data={genderData} save="key" placeholder="Selecionar Gênero" boxStyles={[styles.selectBox, errors.gender && styles.errorBorder]} dropdownStyles={styles.dropdown} search={false} />
+			<SelectList setSelected={setGender} data={genderData} save="key" placeholder="Selecionar Gênero" boxStyles={StyleSheet.flatten([styles.selectBox, errors.gender && styles.errorBorder])} dropdownStyles={styles.dropdown} search={false} />
 			{errors.gender && (
 				<HelperText type="error" visible={true}>
 					{errors.gender}

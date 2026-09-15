@@ -48,7 +48,7 @@ export class VaccineService {
 		return response.data;
 	}
 
-	static async createVaccine(data: Vaccine): Promise<Vaccine> {
+	static async createVaccine(data: Pick<Vaccine, 'name'>): Promise<Vaccine> {
 		const response = await api.post('/vaccines', data);
 		return response.data;
 	}

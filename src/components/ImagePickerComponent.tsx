@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { IconButton } from 'react-native-paper';
-import { ImageService } from '../services/ImageService';
+import { ImageService } from '../services/LocalImageService';
 
 interface ImagePickerProps {
 	imageUrl?: string;
