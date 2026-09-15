@@ -16,10 +16,8 @@ export const VaccinationDetailsScreen: React.FC<VaccinationDetailsScreenProps> =
 	const [editVeterinarian, setEditVeterinarian] = useState('');
 	const [editClinic, setEditClinic] = useState('');
 	const [editNotes, setEditNotes] = useState('');
-	const [editVaccinationDate, setEditVaccinationDate] = useState<Date | null>(null);
-	const [editNextDoseDate, setEditNextDoseDate] = useState<Date | null>(null);
-	const [showDatePicker, setShowDatePicker] = useState(false);
-	const [showNextDosePicker, setShowNextDosePicker] = useState(false);
+	const [editDoses, setEditDoses] = useState<Date[]>([]);
+	const [editingDoseIndex, setEditingDoseIndex] = useState<number | null>(null);
 	const { execute, isLoading, errors } = useRequest();
 
 	const fetchVaccinationDetails = useCallback(async () => {
@@ -64,21 +62,34 @@ export const VaccinationDetailsScreen: React.FC<VaccinationDetailsScreenProps> =
 		setEditVeterinarian(vaccination.petVaccine.veterinarian || '');
 		setEditClinic(vaccination.petVaccine.clinic || '');
 		setEditNotes(vaccination.petVaccine.notes || '');
-		setEditVaccinationDate(new Date(vaccination.petVaccine.vaccinationDate));
-		setEditNextDoseDate(vaccination.petVaccine.nextDoseDate ? new Date(vaccination.petVaccine.nextDoseDate) : null);
+		setEditDoses(vaccination.petVaccine.doses.map((date) => new Date(date)));
 		setEditModalVisible(true);
 	};
 
+	const doseLabel = (index: number) => (index === 0 ? '1ª dose' : `${index + 1}ª dose (reforço)`);
+
+	const handleAddDose = () => {
+		const lastDose = editDoses[editDoses.length - 1] || new Date();
+		setEditDoses([...editDoses, new Date(lastDose)]);
+	};
+
+	const handleRemoveDose = (index: number) => {
+		setEditDoses(editDoses.filter((_, i) => i !== index));
+	};
+
+	const handleChangeDoseDate = (index: number, date: Date) => {
+		setEditDoses(editDoses.map((d, i) => (i === index ? date : d)));
+	};
+
 	const handleEdit = async () => {
-		if (!editVaccinationDate) {
+		if (editDoses.length === 0) {
 			return;
 		}
 
 		const result = await execute(
 			() =>
 				VaccineService.updatePetVaccine(petId, vaccinationId, {
-					vaccinationDate: editVaccinationDate.toISOString(),
-					nextDoseDate: editNextDoseDate ? editNextDoseDate.toISOString() : undefined,
+					doses: editDoses.map((date) => date.toISOString()),
 					veterinarian: editVeterinarian.trim() || undefined,
 					clinic: editClinic.trim() || undefined,
 					notes: editNotes.trim() || undefined,
@@ -114,9 +125,9 @@ export const VaccinationDetailsScreen: React.FC<VaccinationDetailsScreenProps> =
 
 						<Divider style={styles.divider} />
 
-						<List.Item title="Data da Vacinação" description={formatDate(vaccination.petVaccine.vaccinationDate)} left={(props) => <List.Icon {...props} icon="calendar" />} />
-
-						{vaccination.petVaccine.nextDoseDate && <List.Item title="Próxima Dose" description={formatDate(vaccination.petVaccine.nextDoseDate)} left={(props) => <List.Icon {...props} icon="calendar-clock" />} />}
+						{vaccination.petVaccine.doses.map((dose, index) => (
+							<List.Item key={index} title={doseLabel(index)} description={formatDate(dose)} left={(props) => <List.Icon {...props} icon={index === 0 ? 'calendar' : 'calendar-clock'} />} />
+						))}
 
 						{vaccination.petVaccine.veterinarian && <List.Item title="Veterinário" description={vaccination.petVaccine.veterinarian} left={(props) => <List.Icon {...props} icon="doctor" />} />}
 
@@ -136,14 +147,38 @@ export const VaccinationDetailsScreen: React.FC<VaccinationDetailsScreenProps> =
 				<Modal visible={editModalVisible} onDismiss={() => setEditModalVisible(false)} contentContainerStyle={styles.modalContainer}>
 					<Title style={styles.modalTitle}>Editar Vacinação</Title>
 
-					<List.Item title="Data da Vacinação" description={editVaccinationDate ? formatDate(editVaccinationDate) : ''} left={(props) => <List.Icon {...props} icon="calendar" />} onPress={() => setShowDatePicker(true)} style={styles.modalListItem} />
-					{errors.vaccinationDate && (
+					{editDoses.map((dose, index) => (
+						<List.Item
+							key={index}
+							title={doseLabel(index)}
+							description={formatDate(dose)}
+							left={(props) => <List.Icon {...props} icon={index === 0 ? 'calendar' : 'calendar-clock'} />}
+							onPress={() => setEditingDoseIndex(index)}
+							right={(props) =>
+								editDoses.length > 1 ? (
+									<IconButton
+										{...props}
+										icon="delete"
+										iconColor="#ff0000"
+										onPress={(e) => {
+											e.stopPropagation();
+											handleRemoveDose(index);
+										}}
+									/>
+								) : null
+							}
+							style={styles.modalListItem}
+						/>
+					))}
+					{errors.doses && (
 						<HelperText type="error" visible={true}>
-							{errors.vaccinationDate}
+							{errors.doses}
 						</HelperText>
 					)}
 
-					<List.Item title="Próxima Dose (Opcional)" description={editNextDoseDate ? formatDate(editNextDoseDate) : 'Não definida'} left={(props) => <List.Icon {...props} icon="calendar-clock" />} onPress={() => setShowNextDosePicker(true)} style={styles.modalListItem} />
+					<Button mode="outlined" onPress={handleAddDose} style={styles.modalListItem} icon="plus">
+						Adicionar dose futura
+					</Button>
 
 					<TextInput label="Veterinário" value={editVeterinarian} onChangeText={setEditVeterinarian} mode="outlined" style={styles.modalInput} error={!!errors.veterinarian} />
 					{errors.veterinarian && (
@@ -177,30 +212,16 @@ export const VaccinationDetailsScreen: React.FC<VaccinationDetailsScreenProps> =
 				</Modal>
 			</Portal>
 
-			{showDatePicker && (
+			{editingDoseIndex !== null && (
 				<DateTimePicker
-					value={editVaccinationDate || new Date()}
-					mode="date"
-					display="default"
-					maximumDate={new Date()}
-					onChange={(event, date) => {
-						setShowDatePicker(false);
-						if (date) {
-							setEditVaccinationDate(date);
-						}
-					}}
-				/>
-			)}
-
-			{showNextDosePicker && (
-				<DateTimePicker
-					value={editNextDoseDate || new Date()}
+					value={editDoses[editingDoseIndex]}
 					mode="date"
 					display="default"
 					onChange={(event, date) => {
-						setShowNextDosePicker(false);
-						if (date) {
-							setEditNextDoseDate(date);
+						const index = editingDoseIndex;
+						setEditingDoseIndex(null);
+						if (date && index !== null) {
+							handleChangeDoseDate(index, date);
 						}
 					}}
 				/>

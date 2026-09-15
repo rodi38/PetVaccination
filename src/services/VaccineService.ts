@@ -8,11 +8,10 @@ interface VaccineCount {
 interface CreateVaccinationDTO {
 	petId: string;
 	vaccineId: string;
-	vaccinationDate: string;
+	doses: string[];
 	notes?: string;
 	veterinarian?: string;
 	clinic?: string;
-	nextDoseDate?: string;
 }
 
 type UpdateVaccinationDTO = Partial<Omit<CreateVaccinationDTO, 'petId' | 'vaccineId'>>;

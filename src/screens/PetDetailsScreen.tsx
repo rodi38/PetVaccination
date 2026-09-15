@@ -179,7 +179,7 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 										<View style={styles.vaccinationRow}>
 											<Paragraph style={styles.vaccineName}>{truncateText(vaccination.vaccine.name, 10)}</Paragraph>
 											<View style={styles.rightContent}>
-												<Paragraph style={styles.vaccineDate}>{formatDate(vaccination.vaccinationDate)}</Paragraph>
+												<Paragraph style={styles.vaccineDate}>{formatDate(vaccination.doses[0])}</Paragraph>
 												<IconButton
 													icon="delete"
 													size={18}

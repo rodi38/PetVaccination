@@ -36,11 +36,10 @@ export interface Vaccine {
 export interface VaccinationRecord {
 	_id: string;
 	vaccine: Vaccine;
-	vaccinationDate: string;
+	doses: string[];
 	notes?: string;
 	veterinarian?: string;
 	clinic?: string;
-	nextDoseDate?: string;
 }
 
 export interface VaccinationDetailsResponse {
@@ -61,11 +60,10 @@ export interface PetVaccine {
 	_id: string;
 	petId: string;
 	vaccineId: string;
-	vaccinationDate: Date;
+	doses: Date[];
 	notes?: string;
 	veterinarian?: string;
 	clinic?: string;
-	nextDoseDate?: Date;
 	createdAt: Date;
 	updatedAt: Date;
 }

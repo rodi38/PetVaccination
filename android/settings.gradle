@@ -4,3 +4,11 @@ extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autoli
 rootProject.name = 'PetVaccination'
 include ':app'
 includeBuild('../node_modules/@react-native/gradle-plugin')
+
+// react-native-config usa BaseReactPackage, que a heurística de autolinking do
+// @react-native-community/cli 15.x ainda não reconhece (só detecta ReactPackage/
+// TurboReactPackage), então o autolinking não cria este projeto sozinho.
+// android/app/build.gradle referencia project(':react-native-config') manualmente
+// para aplicar o dotenv.gradle, então precisamos incluí-lo à mão aqui.
+include ':react-native-config'
+project(':react-native-config').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-config/android')

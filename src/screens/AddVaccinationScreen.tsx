@@ -17,11 +17,9 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 	const [notes, setNotes] = useState('');
 	const [veterinarian, setVeterinarian] = useState('');
 	const [clinic, setClinic] = useState('');
-	const [vaccinationDate, setVaccinationDate] = useState(new Date());
-	const [nextDoseDate, setNextDoseDate] = useState<Date | null>(null);
+	const [doses, setDoses] = useState<Date[]>([new Date()]);
+	const [editingDoseIndex, setEditingDoseIndex] = useState<number | null>(null);
 	const [showVaccineDialog, setShowVaccineDialog] = useState(false);
-	const [showDatePicker, setShowDatePicker] = useState(false);
-	const [showNextDosePicker, setShowNextDosePicker] = useState(false);
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 	const [vaccineToDelete, setVaccineToDelete] = useState<Vaccine | null>(null);
 	const [currentPage, setCurrentPage] = useState(1);
@@ -101,10 +99,9 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 		const vaccineData = {
 			petId,
 			vaccineId: selectedVaccine._id,
-			vaccinationDate: vaccinationDate.toISOString(),
+			doses: doses.map((date) => date.toISOString()),
 			notes: notes.trim() || undefined, // Se vazio, envia undefined
 			veterinarian: veterinarian.trim() || undefined, //
-			nextDoseDate: nextDoseDate ? nextDoseDate.toISOString() : undefined, // Se vazio, envia undefined
 			clinic: clinic.trim() || undefined, // Se vazio, envia undefined
 		};
 
@@ -117,6 +114,21 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 		if (result) {
 			navigation.goBack();
 		}
+	};
+
+	const doseLabel = (index: number) => (index === 0 ? '1ª dose' : `${index + 1}ª dose (reforço)`);
+
+	const handleAddDose = () => {
+		const lastDose = doses[doses.length - 1];
+		setDoses([...doses, new Date(lastDose)]);
+	};
+
+	const handleRemoveDose = (index: number) => {
+		setDoses(doses.filter((_, i) => i !== index));
+	};
+
+	const handleChangeDoseDate = (index: number, date: Date) => {
+		setDoses(doses.map((d, i) => (i === index ? date : d)));
 	};
 
 	const formatDate = (date: Date) => {
@@ -154,25 +166,39 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 						</HelperText>
 					)}
 
-					<List.Item title="Data da Vacina" description={formatDate(vaccinationDate)} left={(props) => <List.Icon {...props} icon="calendar" />} onPress={() => setShowDatePicker(true)} style={[styles.listItem, errors.vaccinationDate && styles.errorItem]} />
-					{errors.vaccinationDate && (
+					<Text style={styles.dosesLabel}>Doses</Text>
+					{doses.map((dose, index) => (
+						<List.Item
+							key={index}
+							title={doseLabel(index)}
+							description={formatDate(dose)}
+							left={(props) => <List.Icon {...props} icon={index === 0 ? 'calendar' : 'calendar-clock'} />}
+							onPress={() => setEditingDoseIndex(index)}
+							right={(props) =>
+								doses.length > 1 ? (
+									<IconButton
+										{...props}
+										icon="delete"
+										iconColor="#ff0000"
+										onPress={(e) => {
+											e.stopPropagation();
+											handleRemoveDose(index);
+										}}
+									/>
+								) : null
+							}
+							style={styles.listItem}
+						/>
+					))}
+					{errors.doses && (
 						<HelperText type="error" visible={true}>
-							{errors.vaccinationDate}
+							{errors.doses}
 						</HelperText>
 					)}
 
-					<List.Item
-						title="Próxima Dose (Opcional)"
-						description={nextDoseDate ? formatDate(nextDoseDate) : 'Set next dose date'}
-						left={(props) => <List.Icon {...props} icon="calendar-clock" />}
-						onPress={() => setShowNextDosePicker(true)}
-						style={[styles.listItem, errors.nextDoseDate && styles.errorItem]}
-					/>
-					{errors.nextDoseDate && (
-						<HelperText type="error" visible={true}>
-							{errors.nextDoseDate}
-						</HelperText>
-					)}
+					<Button mode="outlined" onPress={handleAddDose} style={styles.addDoseButton} icon="plus">
+						Adicionar dose futura
+					</Button>
 
 					<TextInput label="Observação" value={notes} onChangeText={setNotes} mode="outlined" multiline numberOfLines={4} style={styles.input} error={!!errors.notes} />
 					{errors.notes && (
@@ -271,30 +297,17 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 					</Dialog.Actions>
 				</Dialog>
 			</Portal>
-			{/* Date Pickers */}
-			{showDatePicker && (
+			{/* Date Picker */}
+			{editingDoseIndex !== null && (
 				<DateTimePicker
-					value={vaccinationDate}
+					value={doses[editingDoseIndex]}
 					mode="date"
 					display="default"
 					onChange={(event, date) => {
-						setShowDatePicker(false);
-						if (date) {
-							setVaccinationDate(date);
-						}
-					}}
-				/>
-			)}
-
-			{showNextDosePicker && (
-				<DateTimePicker
-					value={nextDoseDate || new Date()}
-					mode="date"
-					display="default"
-					onChange={(event, date) => {
-						setShowNextDosePicker(false);
-						if (date) {
-							setNextDoseDate(date);
+						const index = editingDoseIndex;
+						setEditingDoseIndex(null);
+						if (date && index !== null) {
+							handleChangeDoseDate(index, date);
 						}
 					}}
 				/>
@@ -346,5 +359,14 @@ const styles = StyleSheet.create({
 	},
 	divider: {
 		marginVertical: 8,
+	},
+	dosesLabel: {
+		marginTop: 8,
+		marginBottom: 4,
+		fontWeight: 'bold',
+	},
+	addDoseButton: {
+		marginTop: 4,
+		marginBottom: 16,
 	},
 });

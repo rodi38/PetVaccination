@@ -128,6 +128,11 @@ dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 
+    // react-native-config não é detectado pela heurística de autolinking do
+    // @react-native-community/cli 15.x (ver comentário em settings.gradle), então
+    // precisa ser adicionado manualmente.
+    implementation project(':react-native-config')
+
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {

@@ -12,7 +12,9 @@ interface ValidationErrors {
 	[key: string]: string;
 }
 
-export const useRequest = (defaultOptions: RequestOptions = {}) => {
+const EMPTY_OPTIONS: RequestOptions = {};
+
+export const useRequest = (defaultOptions: RequestOptions = EMPTY_OPTIONS) => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [errors, setErrors] = useState<ValidationErrors>({});
 	const [generalError, setGeneralError] = useState<string | null>(null);
