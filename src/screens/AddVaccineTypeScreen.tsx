@@ -27,27 +27,27 @@ export const AddVaccineType: React.FC<AddVaccineTypeScreenProps> = ({ navigation
 
 	return (
 		<View style={styles.container}>
-			<LoadingOverlay visible={isLoading} text='Creating vaccine...' />
+			<LoadingOverlay visible={isLoading} text="Creating vaccine..." />
 
-			<TextInput label='Nome da Vacina' value={name} onChangeText={setName} mode='outlined' style={styles.input} error={!!errors.name} />
+			<TextInput label="Nome da Vacina" value={name} onChangeText={setName} mode="outlined" style={styles.input} error={!!errors.name} />
 			{errors.name && (
-				<HelperText type='error' visible={true}>
+				<HelperText type="error" visible={true}>
 					{errors.name}
 				</HelperText>
 			)}
 
 			{generalError && (
-				<HelperText type='error' visible={true} style={styles.generalError}>
+				<HelperText type="error" visible={true} style={styles.generalError}>
 					{generalError}
 				</HelperText>
 			)}
 
 			<View style={styles.buttonRow}>
-				<Button mode='outlined' onPress={() => navigation.goBack()} disabled={isLoading} style={styles.cancelButton}>
+				<Button mode="outlined" onPress={() => navigation.goBack()} disabled={isLoading} style={styles.cancelButton}>
 					Cancelar
 				</Button>
 
-				<Button mode='contained' onPress={handleSubmit} style={styles.button} textColor='white' disabled={isLoading || !name.trim()}>
+				<Button mode="contained" onPress={handleSubmit} style={styles.button} textColor="white" disabled={isLoading || !name.trim()}>
 					Cadastrar
 				</Button>
 			</View>

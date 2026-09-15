@@ -2,8 +2,8 @@ import RNFS from 'react-native-fs';
 import { Platform } from 'react-native';
 
 export class ImageService {
-  static readonly IMAGE_DIR = 
-    Platform.OS === 'ios' 
+  static readonly IMAGE_DIR =
+    Platform.OS === 'ios'
       ? `${RNFS.DocumentDirectoryPath}/pet_vaccination_images`
       : `${RNFS.ExternalDirectoryPath}/pet_vaccination_images`;
 

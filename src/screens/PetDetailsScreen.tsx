@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { Card, Title, Paragraph, Button, List, Divider, Portal, Modal, TextInput, IconButton, HelperText, Dialog } from 'react-native-paper';
 import { Pet, PetVaccineResponse } from '../types';
@@ -38,7 +38,7 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 		return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
 	};
 
-	const fetchPetDetails = async () => {
+	const fetchPetDetails = useCallback(async () => {
 		try {
 			// Fetch pet details
 			const petResponse = await PetService.getPetById(petId);
@@ -51,7 +51,7 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 		} catch (error) {
 			console.error('Error fetching pet details:', error);
 		}
-	};
+	}, [petId]);
 
 	const onRefresh = async () => {
 		setRefreshing(true);
@@ -65,7 +65,7 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 		});
 
 		return unsubscribe;
-	}, [navigation]);
+	}, [navigation, fetchPetDetails]);
 
 	const handleEdit = async () => {
 		if (!pet || !editBirthDate) {
@@ -116,7 +116,7 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 
 	useEffect(() => {
 		fetchPetDetails();
-	}, [petId]);
+	}, [fetchPetDetails]);
 
 	if (!pet) {
 		return null;
@@ -143,15 +143,15 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 	return (
 		<>
 			<ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-				<LoadingOverlay visible={isLoading} text='Updating pet...' />
+				<LoadingOverlay visible={isLoading} text="Updating pet..." />
 
 				<Card style={styles.infoCard}>
 					<Card.Content>
 						<View style={styles.headerContainer}>
 							<Title style={styles.petName}>{pet?.name}</Title>
 							<View style={styles.headerButtons}>
-								<IconButton icon='pencil' size={20} onPress={openEditModal} iconColor='#2e7d32' style={styles.headerButton} />
-								<IconButton icon='delete' size={20} onPress={() => setDeleteModalVisible(true)} iconColor='#d32f2f' style={styles.headerButton} />
+								<IconButton icon="pencil" size={20} onPress={openEditModal} iconColor="#2e7d32" style={styles.headerButton} />
+								<IconButton icon="delete" size={20} onPress={() => setDeleteModalVisible(true)} iconColor="#d32f2f" style={styles.headerButton} />
 							</View>
 						</View>
 						<Paragraph style={styles.petInfo}>Tipo: {pet?.petType}</Paragraph>
@@ -181,9 +181,9 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 											<View style={styles.rightContent}>
 												<Paragraph style={styles.vaccineDate}>{formatDate(vaccination.vaccinationDate)}</Paragraph>
 												<IconButton
-													icon='delete'
+													icon="delete"
 													size={18}
-													iconColor='#d32f2f'
+													iconColor="#d32f2f"
 													style={styles.deleteIcon}
 													onPress={() => {
 														setSelectedVaccineId(vaccination.vaccine._id);
@@ -193,7 +193,7 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 											</View>
 										</View>
 									)}
-									left={(props) => <List.Icon {...props} icon='needle' color='#2e7d32' />}
+									left={(props) => <List.Icon {...props} icon="needle" color="#2e7d32" />}
 									onPress={() =>
 										navigation.navigate('VaccinationDetails', {
 											petId,
@@ -210,7 +210,7 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 					</Card.Content>
 				</Card>
 
-				<Button mode='contained' style={styles.addButton} onPress={() => navigation.navigate('AddVaccination', { petId })}>
+				<Button mode="contained" style={styles.addButton} onPress={() => navigation.navigate('AddVaccination', { petId })}>
 					Adicionar Vacina
 				</Button>
 
@@ -221,7 +221,7 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 					</Dialog.Content>
 					<Dialog.Actions>
 						<Button onPress={() => setDeleteVaccineModalVisible(false)}>Cancelar</Button>
-						<Button onPress={handleDeleteVaccine} textColor='#d32f2f'>
+						<Button onPress={handleDeleteVaccine} textColor="#d32f2f">
 							Deletar
 						</Button>
 					</Dialog.Actions>
@@ -230,28 +230,28 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 			<Portal>
 				<Modal visible={editModalVisible} onDismiss={() => setEditModalVisible(false)} contentContainerStyle={styles.modalContainer}>
 					<Title style={styles.modalTitle}>Editar Pet</Title>
-					<TextInput label='Nome do Pet' value={editName} onChangeText={setEditName} mode='outlined' style={styles.modalInput} error={!!errors.name} />
+					<TextInput label="Nome do Pet" value={editName} onChangeText={setEditName} mode="outlined" style={styles.modalInput} error={!!errors.name} />
 					{errors.name && (
-						<HelperText type='error' visible={true}>
+						<HelperText type="error" visible={true}>
 							{errors.name}
 						</HelperText>
 					)}
 					<List.Item
 						title={editBirthDate ? formatBirthDate(editBirthDate) : 'Selecionar data de nascimento'}
-						left={(props) => <List.Icon {...props} icon='calendar' />}
+						left={(props) => <List.Icon {...props} icon="calendar" />}
 						onPress={() => setShowDatePicker(true)}
-						style={[styles.modalInput, errors.birthDate && { borderColor: '#ff0000', borderWidth: 1 }]}
+						style={[styles.modalInput, errors.birthDate && styles.errorBorderThick]}
 					/>
 					{errors.birthDate && (
-						<HelperText type='error' visible={true}>
+						<HelperText type="error" visible={true}>
 							{errors.birthDate}
 						</HelperText>
 					)}
 					{showDatePicker && (
 						<DateTimePicker
 							value={editBirthDate || new Date()}
-							mode='date'
-							display='default'
+							mode="date"
+							display="default"
 							maximumDate={new Date()}
 							onChange={(event, date) => {
 								setShowDatePicker(false);
@@ -262,10 +262,10 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 						/>
 					)}
 					<View style={styles.modalButtons}>
-						<Button mode='outlined' onPress={() => setEditModalVisible(false)} style={styles.modalButton}>
+						<Button mode="outlined" onPress={() => setEditModalVisible(false)} style={styles.modalButton}>
 							Cancelar
 						</Button>
-						<Button mode='contained' onPress={handleEdit} style={styles.modalButton}>
+						<Button mode="contained" onPress={handleEdit} style={styles.modalButton}>
 							Salvar
 						</Button>
 					</View>
@@ -278,7 +278,7 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 					</Dialog.Content>
 					<Dialog.Actions>
 						<Button onPress={() => setDeleteModalVisible(false)}>Cancelar</Button>
-						<Button onPress={handleDelete} textColor='#d32f2f'>
+						<Button onPress={handleDelete} textColor="#d32f2f">
 							Deletar
 						</Button>
 					</Dialog.Actions>
@@ -288,6 +288,10 @@ export const PetDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 	);
 };
 const styles = StyleSheet.create({
+	errorBorderThick: {
+		borderColor: '#ff0000',
+		borderWidth: 1,
+	},
 	container: {
 		flex: 1,
 		backgroundColor: '#f5f5f5',

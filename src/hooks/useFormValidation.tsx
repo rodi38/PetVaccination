@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
+import { StyleSheet } from 'react-native';
 import { Snackbar } from 'react-native-paper';
 
 interface ValidationRules {
@@ -91,7 +92,7 @@ export const useFormValidation = () => {
 
 	const SnackbarComponent = useCallback(
 		() => (
-			<Snackbar visible={snackbarVisible} onDismiss={hideSnackbar} duration={3000} style={{ backgroundColor: '#4CAF50' }}>
+			<Snackbar visible={snackbarVisible} onDismiss={hideSnackbar} duration={3000} style={styles.snackbar}>
 				{snackbarMessage}
 			</Snackbar>
 		),
@@ -106,3 +107,9 @@ export const useFormValidation = () => {
 		SnackbarComponent,
 	};
 };
+
+const styles = StyleSheet.create({
+	snackbar: {
+		backgroundColor: '#4CAF50',
+	},
+});

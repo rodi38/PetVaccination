@@ -40,7 +40,7 @@ export const ImagePickerComponent: React.FC<ImagePickerProps> = ({ imageUrl, onI
 					<Image source={{ uri: imageUrl }} style={[styles.image, { width: size, height: size, borderRadius: size / 2 }]} />
 				) : (
 					<View style={[styles.placeholder, { width: size, height: size, borderRadius: size / 2 }]}>
-						<IconButton icon='camera' size={size / 3} />
+						<IconButton icon="camera" size={size / 3} />
 					</View>
 				)}
 			</TouchableOpacity>

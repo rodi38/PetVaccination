@@ -30,8 +30,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 	React.useLayoutEffect(() => {
 		navigation.setOptions({
 			headerRight: () => (
-				<View style={{ flexDirection: 'row', alignItems: 'center' }}>
-					{isLoading && <ActivityIndicator size='small' color='white' style={{ marginRight: 10 }} />}
+				<View style={styles.headerRightContainer}>
+					{isLoading && <ActivityIndicator size="small" color="white" style={styles.headerLoadingIndicator} />}
 					<TouchableOpacity style={styles.avatarButton} onPress={() => navigation.navigate('Profile')}>
 						<Title style={styles.avatarText}>{user?.username ? user.username.charAt(0).toUpperCase() : ''}</Title>
 					</TouchableOpacity>
@@ -55,7 +55,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 		return filteredPets.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 	};
 
-	const fetchPets = async () => {
+	const fetchPets = React.useCallback(async () => {
 		await execute(async () => {
 			try {
 				// Buscar pets
@@ -83,7 +83,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 				console.error('Error fetching pets:', error);
 			}
 		});
-	};
+	}, [execute, user]);
 
 	const onRefresh = async () => {
 		setRefreshing(true);
@@ -94,12 +94,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 	useFocusEffect(
 		React.useCallback(() => {
 			fetchPets();
-		}, []),
+		}, [fetchPets]),
 	);
 
 	useEffect(() => {
 		fetchPets();
-	}, []);
+	}, [fetchPets]);
 
 	const renderPetCard = ({ item: pet }: { item: PetWithVaccineCount }) => (
 		<Card style={styles.card} onPress={() => navigation.navigate('PetDetails', { petId: pet._id })}>
@@ -115,13 +115,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
 	const renderPagination = () => (
 		<View style={styles.paginationContainer}>
-			<Button mode='text' onPress={() => setCurrentPage((prev) => Math.max(1, prev - 1))} disabled={currentPage === 1} style={styles.paginationButton}>
+			<Button mode="text" onPress={() => setCurrentPage((prev) => Math.max(1, prev - 1))} disabled={currentPage === 1} style={styles.paginationButton}>
 				Anterior
 			</Button>
 			<Text style={styles.paginationText}>
 				Página {currentPage} de {totalPages}
 			</Text>
-			<Button mode='text' onPress={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages} style={styles.paginationButton}>
+			<Button mode="text" onPress={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages} style={styles.paginationButton}>
 				Próximo
 			</Button>
 		</View>
@@ -129,7 +129,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
 	return (
 		<View style={styles.container}>
-			<Searchbar placeholder='Pesquisar por pet' onChangeText={onChangeSearch} value={searchQuery} style={styles.searchBar} />
+			<Searchbar placeholder="Pesquisar por pet" onChangeText={onChangeSearch} value={searchQuery} style={styles.searchBar} />
 			<FlatList data={getCurrentPagePets()} renderItem={renderPetCard} keyExtractor={(pet) => pet._id} contentContainerStyle={styles.listContainer} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} ListFooterComponent={renderPagination} />
 			<Portal>
 				<FAB.Group
@@ -167,6 +167,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+	headerRightContainer: {
+		flexDirection: 'row',
+		alignItems: 'center',
+	},
+	headerLoadingIndicator: {
+		marginRight: 10,
+	},
 	container: {
 		flex: 1,
 		backgroundColor: '#f5f5f5',

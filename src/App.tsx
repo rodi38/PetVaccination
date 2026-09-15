@@ -1,4 +1,5 @@
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 import { AuthProvider } from './contexts/AuthContext';
 import { Routes } from './routes';
@@ -15,14 +16,16 @@ const theme = {
 	},
 };
 
+const renderIcon = (props: React.ComponentProps<typeof MaterialCommunityIcons>) => <MaterialCommunityIcons {...props} />;
+
 const App = () => {
 	return (
 		<SafeAreaProvider>
-			<GestureHandlerRootView style={{ flex: 1 }}>
+			<GestureHandlerRootView style={styles.root}>
 				<PaperProvider
 					theme={theme}
 					settings={{
-						icon: (props) => <MaterialCommunityIcons {...props} />,
+						icon: renderIcon,
 					}}
 				>
 					<AuthProvider>
@@ -34,5 +37,11 @@ const App = () => {
 		</SafeAreaProvider>
 	);
 };
+
+const styles = StyleSheet.create({
+	root: {
+		flex: 1,
+	},
+});
 
 export default App;

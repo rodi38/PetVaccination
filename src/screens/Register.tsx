@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { TextInput, Button, Text, HelperText } from 'react-native-paper';
 import { useAuth } from '../contexts/AuthContext';
-import { NavigationProp, RegisterScreenProps } from '../types/navigation';
+import { RegisterScreenProps } from '../types/navigation';
 import { useRequest } from '../hooks/useRequest';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 
@@ -37,48 +37,48 @@ export const Register = ({ navigation }: RegisterScreenProps) => {
 
 	return (
 		<View style={styles.container}>
-			<LoadingOverlay visible={isLoading} text='Signing in...' />
+			<LoadingOverlay visible={isLoading} text="Signing in..." />
 			<Text style={styles.title}>Criar Conta</Text>
 
-			<TextInput label='Apelido' value={username} onChangeText={setUsername} mode='outlined' style={styles.input} error={!!errors.username} />
+			<TextInput label="Apelido" value={username} onChangeText={setUsername} mode="outlined" style={styles.input} error={!!errors.username} />
 			{errors.username && (
-				<HelperText type='error' visible={true}>
+				<HelperText type="error" visible={true}>
 					{errors.username}
 				</HelperText>
 			)}
 
-			<TextInput label='Email' value={email} onChangeText={setEmail} mode='outlined' style={styles.input} error={!!errors.email} />
+			<TextInput label="Email" value={email} onChangeText={setEmail} mode="outlined" style={styles.input} error={!!errors.email} />
 			{errors.email && (
-				<HelperText type='error' visible={true}>
+				<HelperText type="error" visible={true}>
 					{errors.email}
 				</HelperText>
 			)}
 
-			<TextInput label='Senha' value={password} onChangeText={setPassword} secureTextEntry mode='outlined' style={styles.input} error={!!errors.password} />
+			<TextInput label="Senha" value={password} onChangeText={setPassword} secureTextEntry mode="outlined" style={styles.input} error={!!errors.password} />
 			{errors.password && (
-				<HelperText type='error' visible={true}>
+				<HelperText type="error" visible={true}>
 					{errors.password}
 				</HelperText>
 			)}
 
-			<TextInput label='Confirmar Senha' value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry mode='outlined' style={styles.input} error={!!errors.confirmPassword} />
+			<TextInput label="Confirmar Senha" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry mode="outlined" style={styles.input} error={!!errors.confirmPassword} />
 			{errors.confirmPassword && (
-				<HelperText type='error' visible={true}>
+				<HelperText type="error" visible={true}>
 					{errors.confirmPassword}
 				</HelperText>
 			)}
 
 			{generalError && (
-				<HelperText type='error' visible={true}>
+				<HelperText type="error" visible={true}>
 					{generalError}
 				</HelperText>
 			)}
 
-			<Button mode='contained' onPress={handleRegister} loading={isLoading} disabled={isLoading} style={styles.button}>
+			<Button mode="contained" onPress={handleRegister} loading={isLoading} disabled={isLoading} style={styles.button}>
 				Registrar
 			</Button>
 
-			<Button mode='text' disabled={isLoading} onPress={() => navigation.goBack()}>
+			<Button mode="text" disabled={isLoading} onPress={() => navigation.goBack()}>
 				Já tem uma conta? Faça o login
 			</Button>
 		</View>

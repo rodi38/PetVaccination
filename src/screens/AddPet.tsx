@@ -72,9 +72,9 @@ export const AddPet: React.FC<AddPetScreenProps> = ({ navigation }) => {
 			return [];
 		}
 		const breedList = breeds[petType as keyof typeof breeds] || [];
-		return breedList.map((breed) => ({
-			key: breed,
-			value: breed,
+		return breedList.map((breedOption) => ({
+			key: breedOption,
+			value: breedOption,
 		}));
 	};
 
@@ -85,11 +85,11 @@ export const AddPet: React.FC<AddPetScreenProps> = ({ navigation }) => {
 	];
 	const handleSubmit = async () => {
 		const newErrors: Record<string, string> = {};
-		if (!name) newErrors.name = 'Nome do pet é obrigatório';
-		if (!petType) newErrors.petType = 'Tipo do pet é obrigatório';
-		if (!breed) newErrors.breed = 'Raça é obrigatória';
-		if (!gender) newErrors.gender = 'Gênero é obrigatório';
-		if (!birthDate) newErrors.birthDate = 'Data de nascimento é obrigatória';
+		if (!name) {newErrors.name = 'Nome do pet é obrigatório';}
+		if (!petType) {newErrors.petType = 'Tipo do pet é obrigatório';}
+		if (!breed) {newErrors.breed = 'Raça é obrigatória';}
+		if (!gender) {newErrors.gender = 'Gênero é obrigatório';}
+		if (!birthDate) {newErrors.birthDate = 'Data de nascimento é obrigatória';}
 
 		if (Object.keys(newErrors).length > 0) {
 			setErrors(newErrors);
@@ -117,13 +117,13 @@ export const AddPet: React.FC<AddPetScreenProps> = ({ navigation }) => {
 
 	return (
 		<ScrollView style={styles.container}>
-			<LoadingOverlay visible={isLoading} text='Creating pet...' />
+			<LoadingOverlay visible={isLoading} text="Creating pet..." />
 
 			<Text style={styles.title}>Adicionar Novo Pet</Text>
 
-			<TextInput label='Nome do Pet' value={name} onChangeText={setName} mode='outlined' style={styles.input} error={!!errors.name} />
+			<TextInput label="Nome do Pet" value={name} onChangeText={setName} mode="outlined" style={styles.input} error={!!errors.name} />
 			{errors.name && (
-				<HelperText type='error' visible={true}>
+				<HelperText type="error" visible={true}>
 					{errors.name}
 				</HelperText>
 			)}
@@ -135,34 +135,34 @@ export const AddPet: React.FC<AddPetScreenProps> = ({ navigation }) => {
 					setBreed('');
 				}}
 				data={petTypeData}
-				save='key'
-				placeholder='Selecionar Tipo de Pet'
-				boxStyles={[styles.selectBox, errors.petType && { borderColor: '#ff0000' }]}
+				save="key"
+				placeholder="Selecionar Tipo de Pet"
+				boxStyles={[styles.selectBox, errors.petType && styles.errorBorder]}
 				dropdownStyles={styles.dropdown}
 				search={false}
 			/>
 			{errors.petType && (
-				<HelperText type='error' visible={true}>
+				<HelperText type="error" visible={true}>
 					{errors.petType}
 				</HelperText>
 			)}
 
 			<Text style={styles.label}>Raça</Text>
 			{petType === 'Other' ? (
-				<TextInput label='Breed' value={breed} onChangeText={setBreed} mode='outlined' style={styles.input} error={!!errors.breed} />
+				<TextInput label="Breed" value={breed} onChangeText={setBreed} mode="outlined" style={styles.input} error={!!errors.breed} />
 			) : (
-				<SelectList setSelected={setBreed} data={getBreedData()} save='key' placeholder='Selecionar Raça' boxStyles={[styles.selectBox, errors.breed && { borderColor: '#ff0000' }]} dropdownStyles={styles.dropdown} search={true} searchPlaceholder='Search breed' disabled={!petType} />
+				<SelectList setSelected={setBreed} data={getBreedData()} save="key" placeholder="Selecionar Raça" boxStyles={[styles.selectBox, errors.breed && styles.errorBorder]} dropdownStyles={styles.dropdown} search={true} searchPlaceholder="Search breed" disabled={!petType} />
 			)}
 			{errors.breed && (
-				<HelperText type='error' visible={true}>
+				<HelperText type="error" visible={true}>
 					{errors.breed}
 				</HelperText>
 			)}
 
 			<Text style={styles.label}>Gênero</Text>
-			<SelectList setSelected={setGender} data={genderData} save='key' placeholder='Selecionar Gênero' boxStyles={[styles.selectBox, errors.gender && { borderColor: '#ff0000' }]} dropdownStyles={styles.dropdown} search={false} />
+			<SelectList setSelected={setGender} data={genderData} save="key" placeholder="Selecionar Gênero" boxStyles={[styles.selectBox, errors.gender && styles.errorBorder]} dropdownStyles={styles.dropdown} search={false} />
 			{errors.gender && (
-				<HelperText type='error' visible={true}>
+				<HelperText type="error" visible={true}>
 					{errors.gender}
 				</HelperText>
 			)}
@@ -170,12 +170,12 @@ export const AddPet: React.FC<AddPetScreenProps> = ({ navigation }) => {
 			<Text style={styles.label}>Data de Nascimento</Text>
 			<List.Item
 				title={birthDate ? formatBirthDate(birthDate) : 'Selecionar data de nascimento'}
-				left={(props) => <List.Icon {...props} icon='calendar' />}
+				left={(props) => <List.Icon {...props} icon="calendar" />}
 				onPress={() => setShowDatePicker(true)}
-				style={[styles.selectBox, errors.birthDate && { borderColor: '#ff0000', borderWidth: 1 }]}
+				style={[styles.selectBox, errors.birthDate && styles.errorBorderThick]}
 			/>
 			{errors.birthDate && (
-				<HelperText type='error' visible={true}>
+				<HelperText type="error" visible={true}>
 					{errors.birthDate}
 				</HelperText>
 			)}
@@ -183,8 +183,8 @@ export const AddPet: React.FC<AddPetScreenProps> = ({ navigation }) => {
 			{showDatePicker && (
 				<DateTimePicker
 					value={birthDate || new Date()}
-					mode='date'
-					display='default'
+					mode="date"
+					display="default"
 					maximumDate={new Date()}
 					onChange={(event, date) => {
 						setShowDatePicker(false);
@@ -196,16 +196,16 @@ export const AddPet: React.FC<AddPetScreenProps> = ({ navigation }) => {
 			)}
 
 			{generalError && (
-				<HelperText type='error' visible={true} style={styles.generalError}>
+				<HelperText type="error" visible={true} style={styles.generalError}>
 					{generalError}
 				</HelperText>
 			)}
 
 			<View style={styles.buttonRow}>
-				<Button mode='outlined' onPress={() => navigation.goBack()} disabled={isLoading} style={styles.cancelButton}>
+				<Button mode="outlined" onPress={() => navigation.goBack()} disabled={isLoading} style={styles.cancelButton}>
 					Cancelar
 				</Button>
-				<Button mode='contained' onPress={handleSubmit} loading={isLoading} disabled={isLoading} style={styles.button}>
+				<Button mode="contained" onPress={handleSubmit} loading={isLoading} disabled={isLoading} style={styles.button}>
 					Cadastrar Pet
 				</Button>
 			</View>
@@ -214,6 +214,13 @@ export const AddPet: React.FC<AddPetScreenProps> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+	errorBorder: {
+		borderColor: '#ff0000',
+	},
+	errorBorderThick: {
+		borderColor: '#ff0000',
+		borderWidth: 1,
+	},
 	container: {
 		flex: 1,
 		padding: 20,

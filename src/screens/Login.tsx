@@ -17,7 +17,7 @@ export const Login = ({ navigation }: LoginScreenProps) => {
 			return;
 		}
 
-		const result = await execute(() => signIn(email, password), {
+		await execute(() => signIn(email, password), {
 			showFullScreenLoading: true,
 			loadingText: 'Signing in...',
 		});
@@ -28,35 +28,35 @@ export const Login = ({ navigation }: LoginScreenProps) => {
 
 	return (
 		<View style={styles.container}>
-			<LoadingOverlay visible={isLoading} text='Signing in...' />
+			<LoadingOverlay visible={isLoading} text="Signing in..." />
 
 			<Text style={styles.title}>Diario de Pet</Text>
 
-			<TextInput label='Email' value={email} onChangeText={setEmail} mode='outlined' style={styles.input} error={!!errors.email} keyboardType='email-address' autoCapitalize='none' />
+			<TextInput label="Email" value={email} onChangeText={setEmail} mode="outlined" style={styles.input} error={!!errors.email} keyboardType="email-address" autoCapitalize="none" />
 			{errors.email && (
-				<HelperText type='error' visible={true}>
+				<HelperText type="error" visible={true}>
 					{errors.email}
 				</HelperText>
 			)}
 
-			<TextInput label='Senha' value={password} onChangeText={setPassword} secureTextEntry mode='outlined' style={styles.input} error={!!errors.password} autoCapitalize='none' />
+			<TextInput label="Senha" value={password} onChangeText={setPassword} secureTextEntry mode="outlined" style={styles.input} error={!!errors.password} autoCapitalize="none" />
 			{errors.password && (
-				<HelperText type='error' visible={true}>
+				<HelperText type="error" visible={true}>
 					{errors.password}
 				</HelperText>
 			)}
 
 			{generalError && (
-				<HelperText type='error' visible={true} style={styles.generalError}>
+				<HelperText type="error" visible={true} style={styles.generalError}>
 					{generalError}
 				</HelperText>
 			)}
 
-			<Button mode='contained' onPress={handleLogin} loading={isLoading} disabled={isLoading} style={styles.button}>
+			<Button mode="contained" onPress={handleLogin} loading={isLoading} disabled={isLoading} style={styles.button}>
 				Entrar
 			</Button>
 
-			<Button mode='text' onPress={() => navigation.navigate('Register')} disabled={isLoading}>
+			<Button mode="text" onPress={() => navigation.navigate('Register')} disabled={isLoading}>
 				Não tem uma conta? Registrar
 			</Button>
 		</View>

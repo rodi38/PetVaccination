@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { Card, Title, Paragraph, List, Divider, IconButton, Portal, Modal, TextInput, Button, HelperText } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -8,7 +8,7 @@ import { VaccinationDetailsResponse } from '../types';
 import { useRequest } from '../hooks/useRequest';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 
-export const VaccinationDetailsScreen: React.FC<VaccinationDetailsScreenProps> = ({ route, navigation }) => {
+export const VaccinationDetailsScreen: React.FC<VaccinationDetailsScreenProps> = ({ route }) => {
 	const { vaccinationId, petId } = route.params;
 	const [vaccination, setVaccination] = useState<VaccinationDetailsResponse | null>(null);
 	const [refreshing, setRefreshing] = useState(false);
@@ -22,14 +22,14 @@ export const VaccinationDetailsScreen: React.FC<VaccinationDetailsScreenProps> =
 	const [showNextDosePicker, setShowNextDosePicker] = useState(false);
 	const { execute, isLoading, errors } = useRequest();
 
-	const fetchVaccinationDetails = async () => {
+	const fetchVaccinationDetails = useCallback(async () => {
 		try {
 			const data = await VaccineService.getPetVaccineDetails(petId, vaccinationId);
 			setVaccination(data);
 		} catch (error) {
 			console.error('Error fetching vaccination details:', error);
 		}
-	};
+	}, [petId, vaccinationId]);
 
 	const onRefresh = async () => {
 		setRefreshing(true);
@@ -39,7 +39,7 @@ export const VaccinationDetailsScreen: React.FC<VaccinationDetailsScreenProps> =
 
 	useEffect(() => {
 		fetchVaccinationDetails();
-	}, [vaccinationId]);
+	}, [fetchVaccinationDetails]);
 
 	const formatDate = (date: Date | string) => {
 		if (!date) {
@@ -103,24 +103,24 @@ export const VaccinationDetailsScreen: React.FC<VaccinationDetailsScreenProps> =
 	return (
 		<>
 			<ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-				<LoadingOverlay visible={isLoading} text='Updating vaccination...' />
+				<LoadingOverlay visible={isLoading} text="Updating vaccination..." />
 
 				<Card style={styles.card}>
 					<Card.Content>
 						<View style={styles.headerContainer}>
 							<Title style={styles.vaccineTitle}>{vaccination.vaccine.name}</Title>
-							<IconButton icon='pencil' size={20} onPress={openEditModal} iconColor='#2e7d32' />
+							<IconButton icon="pencil" size={20} onPress={openEditModal} iconColor="#2e7d32" />
 						</View>
 
 						<Divider style={styles.divider} />
 
-						<List.Item title='Data da Vacinação' description={formatDate(vaccination.petVaccine.vaccinationDate)} left={(props) => <List.Icon {...props} icon='calendar' />} />
+						<List.Item title="Data da Vacinação" description={formatDate(vaccination.petVaccine.vaccinationDate)} left={(props) => <List.Icon {...props} icon="calendar" />} />
 
-						{vaccination.petVaccine.nextDoseDate && <List.Item title='Próxima Dose' description={formatDate(vaccination.petVaccine.nextDoseDate)} left={(props) => <List.Icon {...props} icon='calendar-clock' />} />}
+						{vaccination.petVaccine.nextDoseDate && <List.Item title="Próxima Dose" description={formatDate(vaccination.petVaccine.nextDoseDate)} left={(props) => <List.Icon {...props} icon="calendar-clock" />} />}
 
-						{vaccination.petVaccine.veterinarian && <List.Item title='Veterinário' description={vaccination.petVaccine.veterinarian} left={(props) => <List.Icon {...props} icon='doctor' />} />}
+						{vaccination.petVaccine.veterinarian && <List.Item title="Veterinário" description={vaccination.petVaccine.veterinarian} left={(props) => <List.Icon {...props} icon="doctor" />} />}
 
-						{vaccination.petVaccine.clinic && <List.Item title='Clínica' description={vaccination.petVaccine.clinic} left={(props) => <List.Icon {...props} icon='hospital-building' />} />}
+						{vaccination.petVaccine.clinic && <List.Item title="Clínica" description={vaccination.petVaccine.clinic} left={(props) => <List.Icon {...props} icon="hospital-building" />} />}
 
 						{vaccination.petVaccine.notes && (
 							<View style={styles.notesContainer}>
@@ -136,41 +136,41 @@ export const VaccinationDetailsScreen: React.FC<VaccinationDetailsScreenProps> =
 				<Modal visible={editModalVisible} onDismiss={() => setEditModalVisible(false)} contentContainerStyle={styles.modalContainer}>
 					<Title style={styles.modalTitle}>Editar Vacinação</Title>
 
-					<List.Item title='Data da Vacinação' description={editVaccinationDate ? formatDate(editVaccinationDate) : ''} left={(props) => <List.Icon {...props} icon='calendar' />} onPress={() => setShowDatePicker(true)} style={styles.modalListItem} />
+					<List.Item title="Data da Vacinação" description={editVaccinationDate ? formatDate(editVaccinationDate) : ''} left={(props) => <List.Icon {...props} icon="calendar" />} onPress={() => setShowDatePicker(true)} style={styles.modalListItem} />
 					{errors.vaccinationDate && (
-						<HelperText type='error' visible={true}>
+						<HelperText type="error" visible={true}>
 							{errors.vaccinationDate}
 						</HelperText>
 					)}
 
-					<List.Item title='Próxima Dose (Opcional)' description={editNextDoseDate ? formatDate(editNextDoseDate) : 'Não definida'} left={(props) => <List.Icon {...props} icon='calendar-clock' />} onPress={() => setShowNextDosePicker(true)} style={styles.modalListItem} />
+					<List.Item title="Próxima Dose (Opcional)" description={editNextDoseDate ? formatDate(editNextDoseDate) : 'Não definida'} left={(props) => <List.Icon {...props} icon="calendar-clock" />} onPress={() => setShowNextDosePicker(true)} style={styles.modalListItem} />
 
-					<TextInput label='Veterinário' value={editVeterinarian} onChangeText={setEditVeterinarian} mode='outlined' style={styles.modalInput} error={!!errors.veterinarian} />
+					<TextInput label="Veterinário" value={editVeterinarian} onChangeText={setEditVeterinarian} mode="outlined" style={styles.modalInput} error={!!errors.veterinarian} />
 					{errors.veterinarian && (
-						<HelperText type='error' visible={true}>
+						<HelperText type="error" visible={true}>
 							{errors.veterinarian}
 						</HelperText>
 					)}
 
-					<TextInput label='Clínica' value={editClinic} onChangeText={setEditClinic} mode='outlined' style={styles.modalInput} error={!!errors.clinic} />
+					<TextInput label="Clínica" value={editClinic} onChangeText={setEditClinic} mode="outlined" style={styles.modalInput} error={!!errors.clinic} />
 					{errors.clinic && (
-						<HelperText type='error' visible={true}>
+						<HelperText type="error" visible={true}>
 							{errors.clinic}
 						</HelperText>
 					)}
 
-					<TextInput label='Observação' value={editNotes} onChangeText={setEditNotes} mode='outlined' multiline numberOfLines={3} style={styles.modalInput} error={!!errors.notes} />
+					<TextInput label="Observação" value={editNotes} onChangeText={setEditNotes} mode="outlined" multiline numberOfLines={3} style={styles.modalInput} error={!!errors.notes} />
 					{errors.notes && (
-						<HelperText type='error' visible={true}>
+						<HelperText type="error" visible={true}>
 							{errors.notes}
 						</HelperText>
 					)}
 
 					<View style={styles.modalButtons}>
-						<Button mode='outlined' onPress={() => setEditModalVisible(false)} style={styles.modalButton}>
+						<Button mode="outlined" onPress={() => setEditModalVisible(false)} style={styles.modalButton}>
 							Cancelar
 						</Button>
-						<Button mode='contained' onPress={handleEdit} style={styles.modalButton}>
+						<Button mode="contained" onPress={handleEdit} style={styles.modalButton}>
 							Salvar
 						</Button>
 					</View>
@@ -180,8 +180,8 @@ export const VaccinationDetailsScreen: React.FC<VaccinationDetailsScreenProps> =
 			{showDatePicker && (
 				<DateTimePicker
 					value={editVaccinationDate || new Date()}
-					mode='date'
-					display='default'
+					mode="date"
+					display="default"
 					maximumDate={new Date()}
 					onChange={(event, date) => {
 						setShowDatePicker(false);
@@ -195,8 +195,8 @@ export const VaccinationDetailsScreen: React.FC<VaccinationDetailsScreenProps> =
 			{showNextDosePicker && (
 				<DateTimePicker
 					value={editNextDoseDate || new Date()}
-					mode='date'
-					display='default'
+					mode="date"
+					display="default"
 					onChange={(event, date) => {
 						setShowNextDosePicker(false);
 						if (date) {

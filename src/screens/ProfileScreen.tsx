@@ -16,7 +16,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 	const [currentPassword, setCurrentPassword] = useState('');
 	const [newPassword, setNewPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
-	const { execute, isLoading, errors, generalError, setErrors } = useRequest();
+	const { execute, isLoading, errors, setErrors } = useRequest();
 
 	// Função para resetar o formulário
 	const resetForm = () => {
@@ -36,7 +36,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
 	React.useLayoutEffect(() => {
 		navigation.setOptions({
-			headerRight: () => <Appbar.Action icon='logout' color='white' onPress={signOut} />,
+			headerRight: () => <Appbar.Action icon="logout" color="white" onPress={signOut} />,
 		});
 	}, [navigation, signOut]);
 
@@ -78,7 +78,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
 	return (
 		<KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-			<LoadingOverlay visible={isLoading} text='Updating pet...' />
+			<LoadingOverlay visible={isLoading} text="Updating pet..." />
 
 			<Card style={styles.card}>
 				<Card.Content>
@@ -89,7 +89,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 					</View>
 					<Title style={styles.username}>{user?.username}</Title>
 					<Paragraph style={styles.email}>{user?.email}</Paragraph>
-					<Button mode='contained' onPress={() => setModalVisible(true)} style={styles.editButton}>
+					<Button mode="contained" onPress={() => setModalVisible(true)} style={styles.editButton}>
 						Editar Profile
 					</Button>
 				</Card.Content>
@@ -100,16 +100,16 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 					<ScrollView>
 						<Title style={styles.modalTitle}>Edit Profile</Title>
 
-						<TextInput label='Apelido' value={username} onChangeText={setUsername} mode='outlined' style={styles.input} error={!!errors.username} />
+						<TextInput label="Apelido" value={username} onChangeText={setUsername} mode="outlined" style={styles.input} error={!!errors.username} />
 						{errors.username && (
-							<HelperText type='error' visible={true}>
+							<HelperText type="error" visible={true}>
 								{errors.username}
 							</HelperText>
 						)}
 
-						<TextInput label='Email' value={email} onChangeText={setEmail} mode='outlined' style={styles.input} error={!!errors.email} />
+						<TextInput label="Email" value={email} onChangeText={setEmail} mode="outlined" style={styles.input} error={!!errors.email} />
 						{errors.email && (
-							<HelperText type='error' visible={true}>
+							<HelperText type="error" visible={true}>
 								{errors.email}
 							</HelperText>
 						)}
@@ -150,10 +150,10 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 						)} */}
 
 						<View style={styles.buttonContainer}>
-							<Button mode='outlined' onPress={handleCloseModal} style={styles.buttonCancel}>
+							<Button mode="outlined" onPress={handleCloseModal} style={styles.buttonCancel}>
 								Cancelar
 							</Button>
-							<Button mode='contained' onPress={handleUpdate} loading={isLoading} disabled={isLoading} style={styles.buttonSave}>
+							<Button mode="contained" onPress={handleUpdate} loading={isLoading} disabled={isLoading} style={styles.buttonSave}>
 								Salvar
 							</Button>
 						</View>

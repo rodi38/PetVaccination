@@ -15,10 +15,10 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ visible, text = 
 	return (
 		<Portal>
 			<View style={styles.container}>
-				{/* <View style={styles.content}> */}
-				<ActivityIndicator size='large' color='#2e7d32' />
-				{/* <Text style={styles.text}>{text}</Text> */}
-				{/* </View> */}
+				<View style={styles.content}>
+					<ActivityIndicator size="large" color="#2e7d32" />
+					<Text style={styles.text}>{text}</Text>
+				</View>
 			</View>
 		</Portal>
 	);

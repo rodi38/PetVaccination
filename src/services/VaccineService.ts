@@ -1,5 +1,5 @@
 import api from './api';
-import { Vaccine, PetVaccine, PetVaccineResponse, VaccinationRecord, PaginatedResponse } from '../types';
+import { Vaccine, PetVaccineResponse, VaccinationRecord, PaginatedResponse } from '../types';
 
 interface VaccineCount {
 	count: number;

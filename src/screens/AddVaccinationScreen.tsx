@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { TextInput, Button, Text, HelperText, Card, List, Dialog, Portal, IconButton, Divider } from 'react-native-paper';
 import { AddVaccinationScreenProps } from '../types/navigation';
@@ -28,10 +28,6 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 
 	const { execute, isLoading, errors, generalError, setGeneralError } = useRequest();
 
-	useEffect(() => {
-		loadVaccines();
-	}, []);
-
 	const getCurrentPageItems = () => {
 		const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
 		const endIndex = startIndex + ITEMS_PER_PAGE;
@@ -57,7 +53,7 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 		setCurrentPage(1);
 	};
 
-	const loadVaccines = async () => {
+	const loadVaccines = useCallback(async () => {
 		const result = await execute(async () => {
 			const availableVaccines = await VaccineService.getAllVaccines();
 			setVaccines(availableVaccines.items);
@@ -68,7 +64,11 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 			// Pode adicionar uma mensagem caso não encontre vacinas disponíveis
 			setGeneralError('No vaccines available');
 		}
-	};
+	}, [execute, setGeneralError]);
+
+	useEffect(() => {
+		loadVaccines();
+	}, [loadVaccines]);
 
 	const handleDeleteVaccine = async () => {
 		if (!vaccineToDelete) {
@@ -129,67 +129,67 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 
 	return (
 		<ScrollView style={styles.container}>
-			<LoadingOverlay visible={isLoading} text='Saving vaccination...' />
+			<LoadingOverlay visible={isLoading} text="Saving vaccination..." />
 
 			<Card style={styles.card}>
 				<Card.Content>
-					<List.Item title='Selecione uma Vacina' description={selectedVaccine ? selectedVaccine.name : 'Escolha uma vacina'} left={(props) => <List.Icon {...props} icon='needle' />} onPress={() => setShowVaccineDialog(true)} style={[styles.listItem, errors.vaccineId && styles.errorItem]} />
+					<List.Item title="Selecione uma Vacina" description={selectedVaccine ? selectedVaccine.name : 'Escolha uma vacina'} left={(props) => <List.Icon {...props} icon="needle" />} onPress={() => setShowVaccineDialog(true)} style={[styles.listItem, errors.vaccineId && styles.errorItem]} />
 					{errors.vaccineId && (
-						<HelperText type='error' visible={true}>
+						<HelperText type="error" visible={true}>
 							{errors.vaccineId}
 						</HelperText>
 					)}
 
-					<TextInput label='Veterinário' value={veterinarian} onChangeText={setVeterinarian} mode='outlined' style={styles.input} error={!!errors.veterinarian} />
+					<TextInput label="Veterinário" value={veterinarian} onChangeText={setVeterinarian} mode="outlined" style={styles.input} error={!!errors.veterinarian} />
 					{errors.veterinarian && (
-						<HelperText type='error' visible={true}>
+						<HelperText type="error" visible={true}>
 							{errors.veterinarian}
 						</HelperText>
 					)}
 
-					<TextInput label='Clínica' value={clinic} onChangeText={setClinic} mode='outlined' style={styles.input} error={!!errors.clinic} />
+					<TextInput label="Clínica" value={clinic} onChangeText={setClinic} mode="outlined" style={styles.input} error={!!errors.clinic} />
 					{errors.clinic && (
-						<HelperText type='error' visible={true}>
+						<HelperText type="error" visible={true}>
 							{errors.clinic}
 						</HelperText>
 					)}
 
-					<List.Item title='Data da Vacina' description={formatDate(vaccinationDate)} left={(props) => <List.Icon {...props} icon='calendar' />} onPress={() => setShowDatePicker(true)} style={[styles.listItem, errors.vaccinationDate && styles.errorItem]} />
+					<List.Item title="Data da Vacina" description={formatDate(vaccinationDate)} left={(props) => <List.Icon {...props} icon="calendar" />} onPress={() => setShowDatePicker(true)} style={[styles.listItem, errors.vaccinationDate && styles.errorItem]} />
 					{errors.vaccinationDate && (
-						<HelperText type='error' visible={true}>
+						<HelperText type="error" visible={true}>
 							{errors.vaccinationDate}
 						</HelperText>
 					)}
 
 					<List.Item
-						title='Próxima Dose (Opcional)'
+						title="Próxima Dose (Opcional)"
 						description={nextDoseDate ? formatDate(nextDoseDate) : 'Set next dose date'}
-						left={(props) => <List.Icon {...props} icon='calendar-clock' />}
+						left={(props) => <List.Icon {...props} icon="calendar-clock" />}
 						onPress={() => setShowNextDosePicker(true)}
 						style={[styles.listItem, errors.nextDoseDate && styles.errorItem]}
 					/>
 					{errors.nextDoseDate && (
-						<HelperText type='error' visible={true}>
+						<HelperText type="error" visible={true}>
 							{errors.nextDoseDate}
 						</HelperText>
 					)}
 
-					<TextInput label='Observação' value={notes} onChangeText={setNotes} mode='outlined' multiline numberOfLines={4} style={styles.input} error={!!errors.notes} />
+					<TextInput label="Observação" value={notes} onChangeText={setNotes} mode="outlined" multiline numberOfLines={4} style={styles.input} error={!!errors.notes} />
 					{errors.notes && (
-						<HelperText type='error' visible={true}>
+						<HelperText type="error" visible={true}>
 							{errors.notes}
 						</HelperText>
 					)}
 
 					{generalError && (
-						<HelperText type='error' visible={true} style={styles.generalError}>
+						<HelperText type="error" visible={true} style={styles.generalError}>
 							{generalError}
 						</HelperText>
 					)}
 				</Card.Content>
 			</Card>
 
-			<Button mode='contained' onPress={handleSubmit} style={styles.submitButton} disabled={!selectedVaccine || isLoading}>
+			<Button mode="contained" onPress={handleSubmit} style={styles.submitButton} disabled={!selectedVaccine || isLoading}>
 				Salvar Vacina
 			</Button>
 
@@ -235,8 +235,8 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 								right={(props) => (
 									<IconButton
 										{...props}
-										icon='delete'
-										iconColor='#ff0000'
+										icon="delete"
+										iconColor="#ff0000"
 										onPress={(e) => {
 											e.stopPropagation();
 											setVaccineToDelete(vaccine);
@@ -250,11 +250,11 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 						<Divider style={styles.divider} />
 
 						<View style={styles.paginationControls}>
-							<IconButton icon='chevron-left' onPress={goToPrevPage} disabled={currentPage === 1} />
+							<IconButton icon="chevron-left" onPress={goToPrevPage} disabled={currentPage === 1} />
 							<Text>
 								Página {currentPage} de {totalPages}
 							</Text>
-							<IconButton icon='chevron-right' onPress={goToNextPage} disabled={currentPage === totalPages} />
+							<IconButton icon="chevron-right" onPress={goToNextPage} disabled={currentPage === totalPages} />
 						</View>
 					</Dialog.Content>
 				</Dialog>
@@ -266,7 +266,7 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 					</Dialog.Content>
 					<Dialog.Actions>
 						<Button onPress={() => setShowDeleteConfirm(false)}>Cancelar</Button>
-						<Button onPress={handleDeleteVaccine} textColor='#ff0000'>
+						<Button onPress={handleDeleteVaccine} textColor="#ff0000">
 							Deletar
 						</Button>
 					</Dialog.Actions>
@@ -276,8 +276,8 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 			{showDatePicker && (
 				<DateTimePicker
 					value={vaccinationDate}
-					mode='date'
-					display='default'
+					mode="date"
+					display="default"
 					onChange={(event, date) => {
 						setShowDatePicker(false);
 						if (date) {
@@ -290,8 +290,8 @@ export const AddVaccination: React.FC<AddVaccinationScreenProps> = ({ route, nav
 			{showNextDosePicker && (
 				<DateTimePicker
 					value={nextDoseDate || new Date()}
-					mode='date'
-					display='default'
+					mode="date"
+					display="default"
 					onChange={(event, date) => {
 						setShowNextDosePicker(false);
 						if (date) {

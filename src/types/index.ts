@@ -34,7 +34,7 @@ export interface Vaccine {
 }
 
 export interface VaccinationRecord {
-	_id: string; 
+	_id: string;
 	vaccine: Vaccine;
 	vaccinationDate: string;
 	notes?: string;
