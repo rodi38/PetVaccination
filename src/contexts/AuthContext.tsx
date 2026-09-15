@@ -72,7 +72,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		}
 	};
 
-	global.forceLogout = signOut;
+	globalThis.forceLogout = signOut;
 
 	const updateUserContext = (updatedUser: User) => {
 		setUser(updatedUser);

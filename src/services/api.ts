@@ -32,8 +32,8 @@ api.interceptors.response.use(
 			await AsyncStorage.removeItem('@user');
 
 			// Forçar atualização do app
-			if (global.forceLogout) {
-				global.forceLogout();
+			if (globalThis.forceLogout) {
+				globalThis.forceLogout();
 			}
 		}
 		return Promise.reject(error);

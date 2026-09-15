@@ -6,14 +6,13 @@
 {
 	"compilerOptions": {
         "target": "ES2020",
-        "module": "CommonJS",
+        "module": "ESNext",
         "lib": ["ES2020"],
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "outDir": "./build",
         "rootDir": "./src",
         "strict": false,
         "strictPropertyInitialization": false,
-        "baseUrl": "./src",
         "allowJs": true,
         "resolveJsonModule": true,
         "esModuleInterop": true,
